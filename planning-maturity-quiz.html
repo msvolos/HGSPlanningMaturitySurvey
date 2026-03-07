@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planning Maturity Assessment | HGS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0B1F3A;
+    --navy-mid: #132B50;
+    --blue: #1A4A8A;
+    --accent: #C8922A;
+    --accent-light: #E8B04A;
+    --silver: #8A9BB0;
+    --light: #F4F7FC;
+    --white: #FFFFFF;
+    --border: rgba(255,255,255,0.08);
+    --card-bg: rgba(255,255,255,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--navy);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 10%, rgba(26,74,138,0.35) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(200,146,42,0.12) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(19,43,80,0.8) 0%, transparent 80%);
+    pointer-events: none; z-index: 0;
+  }
+
+  .grid-overlay {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Layout ── */
+  .shell {
+    position: relative; z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 36px 20px 80px;
+  }
+  @media(min-width: 480px) { .shell { padding: 48px 28px 80px; } }
+
+  /* ── Header ── */
+  .brand {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 40px;
+  }
+  @media(min-width: 480px) { .brand { margin-bottom: 56px; } }
+  .brand-mark {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700; font-size: 18px;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  .brand-text {
+    font-size: 13px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--silver);
+  }
+
+  /* ── Screen system ── */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeUp 0.5s ease both; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Intro screen ── */
+  .eyebrow {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(32px, 5vw, 50px);
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 20px;
+    color: var(--white);
+  }
+  .hero-title span { color: var(--accent-light); }
+
+  .hero-sub {
+    font-size: 16px; font-weight: 300;
+    color: var(--silver);
+    line-height: 1.6;
+    max-width: 520px;
+    margin-bottom: 40px;
+  }
+
+  .meta-chips {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 40px;
+  }
+  .chip {
+    padding: 6px 14px;
+    border: 1px solid rgba(200,146,42,0.3);
+    border-radius: 100px;
+    font-size: 12px; font-weight: 500;
+    color: var(--accent-light);
+    background: rgba(200,146,42,0.06);
+  }
+
+  /* ── Form fields ── */
+  .field-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
+  .field-row { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media(min-width: 480px) { .field-row { grid-template-columns: 1fr 1fr; } }
+
+  .field label {
+    display: block;
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--silver);
+    margin-bottom: 7px;
+  }
+  .field input {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; /* 16px prevents iOS auto-zoom */
+    color: var(--white);
+    transition: border-color 0.2s, background 0.2s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+  .field input::placeholder { color: rgba(255,255,255,0.25); }
+  .field input:focus {
+    border-color: var(--accent);
+    background: rgba(200,146,42,0.06);
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border: none; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase;
+    color: var(--navy);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+    box-shadow: 0 4px 20px rgba(200,146,42,0.3);
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  #btn-start { width: 100%; }
+  @media(min-width: 480px) { #btn-start { width: auto; } }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(200,146,42,0.45);
+  }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--silver);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+
+  /* ── Quiz screen ── */
+  .progress-bar-track {
+    background: rgba(255,255,255,0.08);
+    border-radius: 100px;
+    height: 4px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 100px;
+    transition: width 0.4s ease;
+  }
+  .progress-label {
+    font-size: 12px; color: var(--silver);
+    margin-bottom: 40px;
+  }
+
+  .question-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 20px;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  @media(min-width: 480px) { .question-card { padding: 36px; } }
+  .question-number {
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+  .question-context {
+    font-size: 12px; color: var(--silver);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(18px, 4.5vw, 24px);
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 24px;
+    color: var(--white);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+
+  .option-label {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: rgba(255,255,255,0.02);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .option-label:hover {
+    border-color: rgba(200,146,42,0.4);
+    background: rgba(200,146,42,0.05);
+  }
+  .option-label input[type="radio"] { display: none; }
+  .option-radio {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 50%;
+    margin-top: 1px;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s;
+  }
+  .option-radio::after {
+    content: '';
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    transform: scale(0.5);
+  }
+  .option-label.selected {
+    border-color: var(--accent);
+    background: rgba(200,146,42,0.08);
+  }
+  .option-label.selected .option-radio {
+    border-color: var(--accent);
+  }
+  .option-label.selected .option-radio::after {
+    opacity: 1; transform: scale(1);
+  }
+  .option-text { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.85); line-height: 1.4; }
+
+  .question-nav {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 24px;
+    gap: 12px;
+  }
+
+  /* ── Results screen ── */
+  .results-header {
+    text-align: center;
+    padding: 48px 0 40px;
+  }
+  .score-ring {
+    width: 140px; height: 140px;
+    margin: 0 auto 28px;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .score-ring svg {
+    position: absolute; inset: 0;
+    transform: rotate(-90deg);
+  }
+  .score-ring circle {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+  .score-ring .track { stroke: rgba(255,255,255,0.08); }
+  .score-ring .fill {
+    stroke: url(#scoreGrad);
+    stroke-dasharray: 0 1000;
+    transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .score-inner {
+    text-align: center;
+    z-index: 1;
+  }
+  .score-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px; font-weight: 700;
+    line-height: 1;
+    color: var(--white);
+  }
+  .score-total { font-size: 13px; color: var(--silver); }
+
+  .tier-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 12px; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .tier-badge.t1 { background: rgba(180,50,50,0.15); border: 1px solid rgba(180,50,50,0.4); color: #E07070; }
+  .tier-badge.t2 { background: rgba(200,130,40,0.15); border: 1px solid rgba(200,130,40,0.4); color: #E8A050; }
+  .tier-badge.t3 { background: rgba(60,140,100,0.15); border: 1px solid rgba(60,140,100,0.4); color: #60C090; }
+  .tier-badge.t4 { background: rgba(40,100,200,0.15); border: 1px solid rgba(40,100,200,0.4); color: #70A8F0; }
+  .tier-badge.t5 { background: rgba(140,60,200,0.15); border: 1px solid rgba(140,60,200,0.4); color: #B080F0; }
+
+  .tier-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  .tier-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .tier-tagline {
+    font-size: 15px; color: var(--silver);
+    font-weight: 300;
+    margin-bottom: 0;
+  }
+
+  /* ── Results cards ── */
+  .results-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
+  @media(min-width: 560px) { .results-grid { grid-template-columns: 1fr 1fr; } }
+
+  .result-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 20px;
+    backdrop-filter: blur(10px);
+  }
+  @media(min-width: 480px) { .result-card { padding: 28px; } }
+  .result-card-full { grid-column: 1 / -1; }
+
+  .card-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card-label::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: rgba(200,146,42,0.2);
+  }
+  .feel-list, .help-list {
+    list-style: none;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .feel-list li, .help-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 13px; font-weight: 400;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.4;
+  }
+  .feel-list li::before {
+    content: '—';
+    color: var(--accent);
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-weight: 600;
+  }
+  .help-list li::before {
+    content: '→';
+    color: var(--accent-light);
+    flex-shrink: 0;
+    margin-top: 1px;
+    font-weight: 600;
+  }
+
+  /* ── Maturity ladder ── */
+  .ladder {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+  .ladder-title {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .ladder-title::after {
+    content: '';
+    flex: 1; height: 1px;
+    background: rgba(200,146,42,0.2);
+  }
+  .ladder-steps { display: flex; gap: 0; }
+  .ladder-step {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    position: relative;
+    padding-bottom: 16px;
+  }
+  .ladder-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 14px; right: 0;
+    width: 50%; height: 2px;
+    background: rgba(255,255,255,0.06);
+    z-index: 0;
+  }
+  .ladder-step:not(:first-child)::before {
+    content: '';
+    position: absolute;
+    top: 14px; left: 0;
+    width: 50%; height: 2px;
+    background: rgba(255,255,255,0.06);
+    z-index: 0;
+  }
+  .ladder-step.active::after,
+  .ladder-step.active::before,
+  .ladder-step.past::after,
+  .ladder-step.past::before {
+    background: rgba(200,146,42,0.35);
+  }
+  .ladder-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600;
+    z-index: 1;
+    transition: all 0.3s;
+    border: 2px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--silver);
+    margin-bottom: 10px;
+  }
+  .ladder-step.past .ladder-dot {
+    background: rgba(200,146,42,0.15);
+    border-color: rgba(200,146,42,0.5);
+    color: var(--accent-light);
+  }
+  .ladder-step.active .ladder-dot {
+    background: var(--accent);
+    border-color: var(--accent-light);
+    color: var(--navy);
+    box-shadow: 0 0 20px rgba(200,146,42,0.5);
+    font-weight: 700;
+  }
+  .ladder-name {
+    font-size: 8px; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    text-align: center;
+    color: var(--silver);
+    line-height: 1.3;
+    max-width: 52px;
+    word-break: break-word;
+  }
+  .ladder-step.active .ladder-name { color: var(--accent-light); }
+
+  /* ── Next step banner ── */
+  .next-step-banner {
+    background: linear-gradient(135deg, rgba(200,146,42,0.12), rgba(232,176,74,0.06));
+    border: 1px solid rgba(200,146,42,0.25);
+    border-radius: 14px;
+    padding: 24px 20px;
+    margin-bottom: 36px;
+    display: flex; align-items: flex-start; gap: 16px;
+  }
+  @media(min-width: 480px) { .next-step-banner { padding: 28px 32px; align-items: center; gap: 20px; } }
+  .next-step-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .next-step-label {
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  .next-step-text {
+    font-size: 14px; font-weight: 400;
+    color: rgba(255,255,255,0.9);
+    line-height: 1.5;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    text-align: center;
+    padding: 40px 0 0;
+    border-top: 1px solid var(--border);
+  }
+  .cta-section p {
+    font-size: 14px; color: var(--silver);
+    margin-bottom: 20px;
+  }
+  .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  @media(max-width: 400px) {
+    .cta-btns { flex-direction: column; align-items: center; }
+    .cta-btns .btn-primary, .cta-btns .btn-ghost { width: 100%; justify-content: center; }
+  }
+
+  /* ── User info bar ── */
+  .user-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 28px;
+  }
+  .user-avatar {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-light));
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--navy);
+    flex-shrink: 0;
+  }
+  .user-info { flex: 1; }
+  .user-name { font-size: 14px; font-weight: 500; }
+  .user-detail { font-size: 12px; color: var(--silver); }
+
+  /* ── Divider ── */
+  .section-gap { height: 16px; }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+
+<div class="shell">
+  <div class="brand">
+    <div class="brand-mark">H</div>
+    <div class="brand-text">HGS Advisory</div>
+  </div>
+
+  <!-- SCREEN 1: INTRO -->
+  <div id="screen-intro" class="screen active">
+    <div class="eyebrow">FP&amp;A Diagnostic</div>
+    <h1 class="hero-title">Planning <span>Maturity</span><br>Assessment</h1>
+    <p class="hero-sub">Five questions. Sixty seconds. A clear picture of where your planning capabilities stand — and where they could go.</p>
+
+    <div class="meta-chips">
+      <span class="chip">⏱ 60–90 seconds</span>
+      <span class="chip">5 questions</span>
+      <span class="chip">Instant results</span>
+    </div>
+
+    <div class="field-group">
+      <div class="field-row">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="input-name" placeholder="Jane Smith" />
+        </div>
+        <div class="field">
+          <label>Role / Title</label>
+          <input type="text" id="input-role" placeholder="VP Finance" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Organization</label>
+        <input type="text" id="input-org" placeholder="Acme Corporation" />
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-start" onclick="startQuiz()" disabled>
+      Begin Assessment
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+    </button>
+  </div>
+
+  <!-- SCREEN 2: QUIZ -->
+  <div id="screen-quiz" class="screen">
+    <div class="progress-bar-track">
+      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progress-label">Question 1 of 5</div>
+
+    <div class="question-card" id="question-card">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="question-nav">
+      <button class="btn-ghost" id="btn-back" onclick="prevQuestion()">← Back</button>
+      <button class="btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
+        Next
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: RESULTS -->
+  <div id="screen-results" class="screen">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    number: 1,
+    context: "Qualification + Maturity",
+    text: "What do you mainly use for planning today?",
+    options: [
+      { text: "Excel / Google Sheets", score: 1 },
+      { text: "Excel + add-ins (Power Query, Power Pivot, VBA, etc.)", score: 2 },
+      { text: "An FP&A tool (e.g., Anaplan, Pigment, Board, SAC etc.)", score: 3 },
+      { text: "ERP-native planning (e.g., SAP, Oracle, Workday)", score: 4 },
+      { text: "Not sure / mix of tools", score: 2 },
+    ]
+  },
+  {
+    number: 2,
+    context: "Maturity Signal",
+    text: "How often do you update your forecast?",
+    options: [
+      { text: "Annual budget only", score: 1 },
+      { text: "1–2 reforecasts per year", score: 2 },
+      { text: "Rolling forecast", score: 3 },
+      { text: "Continuous forecasting with scenarios", score: 4 },
+    ]
+  },
+  {
+    number: 3,
+    context: "Value Positioning",
+    text: "Where does your FP&A team spend most of its time?",
+    options: [
+      { text: "Collecting and cleaning data", score: 1 },
+      { text: "Preparing forecasts and reports", score: 2 },
+      { text: "Analyzing results with the business", score: 3 },
+      { text: "Advising on decisions and scenarios", score: 4 },
+    ]
+  },
+  {
+    number: 4,
+    context: "xP&A Signal",
+    text: "Which teams actively participate in planning?",
+    options: [
+      { text: "Finance only", score: 1 },
+      { text: "Finance + HR", score: 2 },
+      { text: "Finance + Sales + HR", score: 3 },
+      { text: "Finance + Operations + Commercial (xP&A)", score: 4 },
+    ]
+  },
+  {
+    number: 5,
+    context: "Future-looking + AI Hook",
+    text: "Are you using advanced analytics or AI in planning?",
+    options: [
+      { text: "No", score: 1 },
+      { text: "Basic drivers & what-if analysis", score: 2 },
+      { text: "Statistical forecasting", score: 3 },
+      { text: "AI-assisted forecasting or recommendations", score: 4 },
+    ]
+  }
+];
+
+const tiers = [
+  {
+    id: 't1',
+    label: "Reactive",
+    tagline: "Manual. Siloed. Excel-driven.",
+    minScore: 0, maxScore: 6,
+    feels: ["Version control issues", "Long budget cycles", "Heavy reconciliation effort", "Limited business visibility"],
+    nextStep: "Move to Emerging / Defined",
+    help: [
+      "Assess current planning process (people, process, tech)",
+      "Design standardized planning framework",
+      "Implement structured FP&A model (cost, headcount, revenue)",
+      "Reduce manual effort with best-practice templates & governance",
+      "Build roadmap toward integrated platform"
+    ]
+  },
+  {
+    id: 't2',
+    label: "Emerging / Defined",
+    tagline: "Some structure. Early tools. Growing collaboration.",
+    minScore: 7, maxScore: 10,
+    feels: ["Improved visibility but still manual effort", "Tools not fully integrated", "Drivers not consistently defined", "Forecast cycles still slow"],
+    nextStep: "Move to Integrated / Aligned",
+    help: [
+      "Implement or optimize FP&A platform (Anaplan, SAC, Pigment, etc.)",
+      "Standardize drivers & assumptions",
+      "Connect workforce + cost planning to financial forecast",
+      "Integrate ERP / CRM data",
+      "Introduce rolling forecast framework"
+    ]
+  },
+  {
+    id: 't3',
+    label: "Integrated / Aligned",
+    tagline: "Enterprise platform in place. Cross-functional alignment.",
+    minScore: 11, maxScore: 15,
+    feels: ["Stronger cross-functional ownership", "Better forecasting discipline", "Increasing demand for faster insights", "Scenario planning still limited"],
+    nextStep: "Move to Optimized / Predictive",
+    help: [
+      "Introduce driver-based scenario modeling",
+      "Embed rolling and continuous forecasting",
+      "Implement statistical forecasting",
+      "Enhance data architecture & performance",
+      "Expand planning into full xP&A roadmap"
+    ]
+  },
+  {
+    id: 't4',
+    label: "Optimized / Predictive",
+    tagline: "Agile forecasting. Advanced analytics. Scenario-driven decisions.",
+    minScore: 16, maxScore: 19,
+    feels: ["Faster forecast cycles", "Better strategic alignment", "Data-informed decisions", "Desire for automation & AI"],
+    nextStep: "Move to Leading / Proactive",
+    help: [
+      "Implement predictive workforce & revenue models",
+      "Introduce AI-assisted forecasting",
+      "Automate anomaly detection",
+      "Enable decision intelligence dashboards",
+      "Integrate operational planning modules"
+    ]
+  },
+  {
+    id: 't5',
+    label: "Leading / Proactive",
+    tagline: "Continuous. AI-enabled. Fully converged planning.",
+    minScore: 20, maxScore: 20,
+    feels: ["Executive-ready insights on demand", "Scenario simulations in minutes", "Autonomous forecasting elements", "Continuous improvement mindset"],
+    nextStep: "Sustain & Expand Strategic Advantage",
+    help: [
+      "Implement agentic AI for planning",
+      "Design autonomous forecasting agents",
+      "Expand AI use cases (attrition risk, churn prediction, pipeline slippage)",
+      "Optimize cross-functional xP&A governance",
+      "Continuous improvement & roadmap evolution"
+    ]
+  }
+];
+
+const ladderLabels = ["Reactive", "Emerging", "Integrated", "Optimized", "Leading"];
+
+let answers = {};
+let currentQ = 0;
+
+// Enable start button
+['input-name', 'input-role', 'input-org'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    const ok = ['input-name','input-role','input-org'].every(i => document.getElementById(i).value.trim());
+    document.getElementById('btn-start').disabled = !ok;
+  });
+});
+
+function startQuiz() {
+  showScreen('screen-quiz');
+  renderQuestion();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const pct = (currentQ / questions.length) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Question ${currentQ + 1} of ${questions.length}`;
+  document.getElementById('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+
+  const selected = answers[currentQ];
+  const card = document.getElementById('question-card');
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(10px)';
+  setTimeout(() => {
+    card.innerHTML = `
+      <div class="question-number">Question ${q.number} of ${questions.length}</div>
+      <div class="question-context">${q.context}</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <label class="option-label ${selected === i ? 'selected' : ''}" onclick="selectOption(${i})">
+            <input type="radio" name="q${currentQ}" ${selected === i ? 'checked' : ''}/>
+            <div class="option-radio"></div>
+            <span class="option-text">${opt.text}</span>
+          </label>
+        `).join('')}
+      </div>
+    `;
+    card.style.transition = 'opacity 0.3s, transform 0.3s';
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+
+    const isLast = currentQ === questions.length - 1;
+    const nextBtn = document.getElementById('btn-next');
+    nextBtn.innerHTML = isLast
+      ? 'See Results <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+      : 'Next <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
+    nextBtn.disabled = selected === undefined;
+  }, 150);
+}
+
+function selectOption(i) {
+  answers[currentQ] = i;
+  document.querySelectorAll('.option-label').forEach((el, idx) => {
+    el.classList.toggle('selected', idx === i);
+  });
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === undefined) return;
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) { currentQ--; renderQuestion(); }
+}
+
+function showResults() {
+  const totalScore = Object.entries(answers).reduce((sum, [qi, oi]) => {
+    return sum + questions[parseInt(qi)].options[oi].score;
+  }, 0);
+
+  const tier = tiers.find(t => totalScore >= t.minScore && totalScore <= t.maxScore) || tiers[0];
+  const tierIndex = tiers.indexOf(tier);
+
+  const name = document.getElementById('input-name').value.trim();
+  const role = document.getElementById('input-role').value.trim();
+  const org  = document.getElementById('input-org').value.trim();
+  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+
+  const maxScore = 20;
+  const circumference = 2 * Math.PI * 54;
+  const filled = (totalScore / maxScore) * circumference;
+
+  const tierColorMap = {
+    t1: '#E07070', t2: '#E8A050', t3: '#60C090', t4: '#70A8F0', t5: '#B080F0'
+  };
+  const tc = tierColorMap[tier.id];
+
+  document.getElementById('screen-results').innerHTML = `
+    <svg width="0" height="0" style="position:absolute">
+      <defs>
+        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${tc}"/>
+          <stop offset="100%" stop-color="var(--accent-light)"/>
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <div class="user-bar">
+      <div class="user-avatar">${initials}</div>
+      <div class="user-info">
+        <div class="user-name">${name}</div>
+        <div class="user-detail">${role} · ${org}</div>
+      </div>
+    </div>
+
+    <div class="results-header">
+      <div class="score-ring" id="score-ring-el">
+        <svg viewBox="0 0 120 120" width="140" height="140">
+          <circle class="track" cx="60" cy="60" r="54"/>
+          <circle class="fill" id="ring-fill" cx="60" cy="60" r="54"
+            stroke-dasharray="0 ${circumference}"
+            stroke-dashoffset="0"/>
+        </svg>
+        <div class="score-inner">
+          <div class="score-number" id="score-display">0</div>
+          <div class="score-total">out of 20</div>
+        </div>
+      </div>
+
+      <div class="tier-badge ${tier.id}">
+        <div class="tier-dot"></div>
+        ${tier.label}
+      </div>
+      <h2 class="tier-title">Your Planning Readiness</h2>
+      <p class="tier-tagline">${tier.tagline}</p>
+    </div>
+
+    <!-- Maturity Ladder -->
+    <div class="ladder">
+      <div class="ladder-title">Your Position on the Maturity Spectrum</div>
+      <div class="ladder-steps">
+        ${ladderLabels.map((l, i) => `
+          <div class="ladder-step ${i < tierIndex ? 'past' : ''} ${i === tierIndex ? 'active' : ''}">
+            <div class="ladder-dot">${i + 1}</div>
+            <div class="ladder-name">${l}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Feel + Help cards -->
+    <div class="results-grid">
+      <div class="result-card">
+        <div class="card-label">What this feels like</div>
+        <ul class="feel-list">
+          ${tier.feels.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      </div>
+      <div class="result-card">
+        <div class="card-label">How HGS Can Help</div>
+        <ul class="help-list">
+          ${tier.help.map(h => `<li>${h}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Next step -->
+    <div class="next-step-banner">
+      <div class="next-step-icon">🎯</div>
+      <div>
+        <div class="next-step-label">Recommended Next Step</div>
+        <div class="next-step-text">${tier.nextStep}</div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <p>Ready to accelerate your planning transformation?</p>
+      <div class="cta-btns">
+        <button class="btn-primary" onclick="alert('Connect with HGS Advisory — feature coming soon')">
+          Talk to an HGS Advisor
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        </button>
+        <button class="btn-ghost" onclick="retake()">Retake Assessment</button>
+      </div>
+    </div>
+  `;
+
+  showScreen('screen-results');
+
+  // Animate score ring
+  setTimeout(() => {
+    document.getElementById('ring-fill').style.strokeDasharray = `${filled} ${circumference}`;
+    // Count up
+    let current = 0;
+    const target = totalScore;
+    const dur = 1200;
+    const step = dur / target;
+    const counter = setInterval(() => {
+      current++;
+      document.getElementById('score-display').textContent = current;
+      if (current >= target) clearInterval(counter);
+    }, step);
+  }, 200);
+}
+
+function retake() {
+  answers = {};
+  currentQ = 0;
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-role').value = '';
+  document.getElementById('input-org').value = '';
+  document.getElementById('btn-start').disabled = true;
+  showScreen('screen-intro');
+}
+</script>
+</body>
+</html>
