@@ -3,1004 +3,2015 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planning Maturity Assessment | HGS</title>
+<title>FP&A Maturity Deep-Dive | HGS Advisory</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --navy: #0B1F3A;
-    --navy-mid: #132B50;
-    --blue: #1A4A8A;
-    --accent: #C8922A;
-    --accent-light: #E8B04A;
-    --silver: #8A9BB0;
-    --light: #F4F7FC;
-    --white: #FFFFFF;
-    --border: rgba(255,255,255,0.08);
-    --card-bg: rgba(255,255,255,0.04);
-  }
+:root {
+  --ink: #0D1B2A;
+  --ink2: #1A2E45;
+  --teal: #0E7C7B;
+  --teal-light: #14A9A8;
+  --teal-mist: rgba(14,124,123,0.12);
+  --gold: #C9922B;
+  --gold-light: #E8B24A;
+  --silver: #6B8099;
+  --mist: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.08);
+  --white: #FFFFFF;
+  --offwhite: #F0F4F8;
+  --danger: #E05555;
+  --warn: #E8943A;
+  --ok: #3BAB7A;
+  --great: #3A8BE8;
+  --best: #8A5CF6;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--navy);
-    color: var(--white);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+html { scroll-behavior: smooth; }
 
-  /* ── Background ── */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 10% 10%, rgba(26,74,138,0.35) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 90% 80%, rgba(200,146,42,0.12) 0%, transparent 55%),
-      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(19,43,80,0.8) 0%, transparent 80%);
-    pointer-events: none; z-index: 0;
-  }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--ink);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  .grid-overlay {
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events: none; z-index: 0;
-  }
+/* Background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 90% 70% at 5% 5%, rgba(14,124,123,0.2) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 95% 90%, rgba(201,146,43,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 50% 50%, rgba(26,46,69,0.6) 0%, transparent 70%);
+  pointer-events: none; z-index: 0;
+}
 
-  /* ── Layout ── */
-  .shell {
-    position: relative; z-index: 1;
-    max-width: 780px;
-    margin: 0 auto;
-    padding: 36px 20px 80px;
-  }
-  @media(min-width: 480px) { .shell { padding: 48px 28px 80px; } }
+.noise {
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0; opacity: 0.4;
+}
 
-  /* ── Header ── */
-  .brand {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 40px;
-  }
-  @media(min-width: 480px) { .brand { margin-bottom: 56px; } }
-  .brand-mark {
-    width: 40px; height: 40px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-weight: 700; font-size: 18px;
-    color: var(--navy);
-    flex-shrink: 0;
-  }
-  .brand-text {
-    font-size: 13px; font-weight: 600;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--silver);
-  }
+/* Shell */
+.shell {
+  position: relative; z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 24px 100px;
+}
 
-  /* ── Screen system ── */
-  .screen { display: none; }
-  .screen.active { display: block; animation: fadeUp 0.5s ease both; }
+/* Screen system */
+.screen { display: none; }
+.screen.active { display: block; animation: fadeUp 0.45s ease both; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+/* ══ BRAND ══ */
+.brand {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 52px;
+}
+.brand-mark {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 700; font-size: 20px;
+  color: var(--white);
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(14,124,123,0.4);
+}
+.brand-name {
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--silver);
+}
+.brand-divider { flex: 1; height: 1px; background: var(--border); }
+.brand-tag {
+  font-size: 11px; color: var(--silver);
+  letter-spacing: 0.08em;
+  font-style: italic;
+}
 
-  /* ── Intro screen ── */
-  .eyebrow {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.2em; text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 16px;
-  }
-  .hero-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(32px, 5vw, 50px);
-    font-weight: 700;
-    line-height: 1.15;
-    margin-bottom: 20px;
-    color: var(--white);
-  }
-  .hero-title span { color: var(--accent-light); }
+/* ══ INTRO SCREEN ══ */
+.eyebrow {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 16px;
+}
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(36px, 6vw, 62px);
+  font-weight: 700;
+  line-height: 1.08;
+  margin-bottom: 24px;
+}
+.hero-title em { color: var(--teal-light); font-style: italic; }
+.hero-sub {
+  font-size: 16px; font-weight: 300;
+  color: var(--silver);
+  line-height: 1.65;
+  max-width: 560px;
+  margin-bottom: 40px;
+}
 
-  .hero-sub {
-    font-size: 16px; font-weight: 300;
-    color: var(--silver);
-    line-height: 1.6;
-    max-width: 520px;
-    margin-bottom: 40px;
-  }
+.assessment-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 44px;
+}
+.meta-item {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.meta-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 32px; font-weight: 700;
+  color: var(--teal-light);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.meta-desc { font-size: 12px; color: var(--silver); font-weight: 400; }
 
-  .meta-chips {
-    display: flex; gap: 12px; flex-wrap: wrap;
-    margin-bottom: 40px;
-  }
-  .chip {
-    padding: 6px 14px;
-    border: 1px solid rgba(200,146,42,0.3);
-    border-radius: 100px;
-    font-size: 12px; font-weight: 500;
-    color: var(--accent-light);
-    background: rgba(200,146,42,0.06);
-  }
+.field-section {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 32px;
+}
+.field-section-title {
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.field-grid.triple { grid-template-columns: 1fr 1fr 1fr; }
+.field-full { grid-column: 1 / -1; }
+.field label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 8px;
+}
+.field input, .field select {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+.field input::placeholder { color: rgba(255,255,255,0.22); }
+.field input:focus, .field select:focus {
+  border-color: var(--teal);
+  background: rgba(14,124,123,0.07);
+}
+.field select option { background: var(--ink2); color: var(--white); }
 
-  /* ── Form fields ── */
-  .field-group { display: flex; flex-direction: column; gap: 16px; margin-bottom: 32px; }
-  .field-row { display: grid; grid-template-columns: 1fr; gap: 16px; }
-  @media(min-width: 480px) { .field-row { grid-template-columns: 1fr 1fr; } }
+@media(max-width: 520px) {
+  .field-grid, .field-grid.triple { grid-template-columns: 1fr; }
+}
 
-  .field label {
-    display: block;
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--silver);
-    margin-bottom: 7px;
-  }
-  .field input {
-    width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px; /* 16px prevents iOS auto-zoom */
-    color: var(--white);
-    transition: border-color 0.2s, background 0.2s;
-    outline: none;
-    -webkit-appearance: none;
-  }
-  .field input::placeholder { color: rgba(255,255,255,0.25); }
-  .field input:focus {
-    border-color: var(--accent);
-    background: rgba(200,146,42,0.06);
-  }
+/* ══ BUTTONS ══ */
+.btn-primary {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 32px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-light));
+  border: none; border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--white);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+  box-shadow: 0 4px 20px rgba(14,124,123,0.35);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(14,124,123,0.5); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: var(--silver);
+  padding: 12px 22px;
+  border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-ghost:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+.btn-gold {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  border: none; border-radius: 9px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--ink);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 20px rgba(201,146,43,0.3);
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,146,43,0.45); }
 
-  /* ── Buttons ── */
-  .btn-primary {
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 14px 28px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    border: none; border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px; font-weight: 600;
-    letter-spacing: 0.05em; text-transform: uppercase;
-    color: var(--navy);
-    cursor: pointer;
-    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
-    box-shadow: 0 4px 20px rgba(200,146,42,0.3);
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-  }
-  #btn-start { width: 100%; }
-  @media(min-width: 480px) { #btn-start { width: auto; } }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 28px rgba(200,146,42,0.45);
-  }
-  .btn-primary:active { transform: translateY(0); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+/* ══ QUIZ SCREEN ══ */
+.quiz-chrome {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 32px;
+}
+.section-tabs {
+  display: flex; gap: 6px; flex-wrap: wrap; flex: 1;
+}
+.section-tab {
+  padding: 6px 12px;
+  border-radius: 100px;
+  font-size: 11px; font-weight: 500;
+  border: 1px solid var(--border);
+  color: var(--silver);
+  background: var(--mist);
+  transition: all 0.2s;
+  cursor: default;
+  white-space: nowrap;
+}
+.section-tab.active {
+  background: var(--teal-mist);
+  border-color: var(--teal);
+  color: var(--teal-light);
+}
+.section-tab.done {
+  background: rgba(59,171,122,0.1);
+  border-color: rgba(59,171,122,0.4);
+  color: var(--ok);
+}
 
-  .btn-ghost {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.15);
-    color: var(--silver);
-    padding: 12px 24px;
-    border-radius: 8px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px; font-weight: 500;
-    cursor: pointer;
-    transition: border-color 0.2s, color 0.2s;
-  }
-  .btn-ghost:hover { border-color: rgba(255,255,255,0.3); color: var(--white); }
+.progress-wrap { margin-bottom: 8px; }
+.progress-track {
+  height: 3px; background: rgba(255,255,255,0.08);
+  border-radius: 100px; overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-light));
+  border-radius: 100px;
+  transition: width 0.4s ease;
+}
+.progress-meta {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--silver);
+  margin-top: 6px;
+}
 
-  /* ── Quiz screen ── */
-  .progress-bar-track {
-    background: rgba(255,255,255,0.08);
-    border-radius: 100px;
-    height: 4px;
-    margin-bottom: 8px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-light));
-    border-radius: 100px;
-    transition: width 0.4s ease;
-  }
-  .progress-label {
-    font-size: 12px; color: var(--silver);
-    margin-bottom: 40px;
-  }
+.section-header {
+  margin-bottom: 28px;
+}
+.section-icon {
+  font-size: 28px; margin-bottom: 10px;
+}
+.section-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.section-desc { font-size: 13px; color: var(--silver); font-weight: 300; }
 
-  .question-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 24px 20px;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  @media(min-width: 480px) { .question-card { padding: 36px; } }
-  .question-number {
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 12px;
-  }
-  .question-context {
-    font-size: 12px; color: var(--silver);
-    font-style: italic;
-    margin-bottom: 8px;
-  }
-  .question-text {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(18px, 4.5vw, 24px);
-    font-weight: 600;
-    line-height: 1.3;
-    margin-bottom: 24px;
-    color: var(--white);
-  }
+.q-card {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px 24px;
+  margin-bottom: 16px;
+  transition: border-color 0.2s;
+}
+.q-card.answered { border-color: rgba(14,124,123,0.3); }
+.q-num {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 10px;
+}
+.q-text {
+  font-size: 15px; font-weight: 500;
+  line-height: 1.45;
+  margin-bottom: 18px;
+  color: var(--white);
+}
+.q-options { display: flex; flex-direction: column; gap: 8px; }
+.q-option {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 14px;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.18s;
+  background: rgba(255,255,255,0.02);
+  -webkit-tap-highlight-color: transparent;
+}
+.q-option:hover { border-color: rgba(14,124,123,0.35); background: rgba(14,124,123,0.05); }
+.q-option.selected { border-color: var(--teal); background: rgba(14,124,123,0.1); }
+.q-radio {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: 50%; margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color 0.18s;
+}
+.q-radio::after {
+  content: ''; width: 7px; height: 7px;
+  border-radius: 50%; background: var(--teal-light);
+  opacity: 0; transform: scale(0.4);
+  transition: all 0.18s;
+}
+.q-option.selected .q-radio { border-color: var(--teal-light); }
+.q-option.selected .q-radio::after { opacity: 1; transform: scale(1); }
+.q-option-score {
+  margin-left: auto; flex-shrink: 0;
+  font-size: 10px; font-weight: 600;
+  color: rgba(255,255,255,0.2);
+  padding-top: 2px;
+}
+.q-option-text { font-size: 13px; color: rgba(255,255,255,0.82); line-height: 1.4; flex: 1; }
 
-  .options { display: flex; flex-direction: column; gap: 10px; }
+.section-nav {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 24px;
+  gap: 12px;
+}
+.section-progress-text { font-size: 12px; color: var(--silver); }
 
-  .option-label {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 14px 16px;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    background: rgba(255,255,255,0.02);
-    -webkit-tap-highlight-color: transparent;
-  }
-  .option-label:hover {
-    border-color: rgba(200,146,42,0.4);
-    background: rgba(200,146,42,0.05);
-  }
-  .option-label input[type="radio"] { display: none; }
-  .option-radio {
-    width: 20px; height: 20px; flex-shrink: 0;
-    border: 2px solid rgba(255,255,255,0.2);
-    border-radius: 50%;
-    margin-top: 1px;
-    display: flex; align-items: center; justify-content: center;
-    transition: border-color 0.2s;
-  }
-  .option-radio::after {
-    content: '';
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.2s, transform 0.2s;
-    transform: scale(0.5);
-  }
-  .option-label.selected {
-    border-color: var(--accent);
-    background: rgba(200,146,42,0.08);
-  }
-  .option-label.selected .option-radio {
-    border-color: var(--accent);
-  }
-  .option-label.selected .option-radio::after {
-    opacity: 1; transform: scale(1);
-  }
-  .option-text { font-size: 14px; font-weight: 400; color: rgba(255,255,255,0.85); line-height: 1.4; }
+/* ══ RESULTS SCREEN ══ */
+.results-hero {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: start;
+  margin-bottom: 40px;
+  padding: 36px;
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+}
+@media(max-width: 600px) {
+  .results-hero { grid-template-columns: 1fr; }
+}
 
-  .question-nav {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-top: 24px;
-    gap: 12px;
-  }
+.results-hero-left .eyebrow { margin-bottom: 10px; }
+.results-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.results-org { font-size: 14px; color: var(--silver); margin-bottom: 20px; }
 
-  /* ── Results screen ── */
-  .results-header {
-    text-align: center;
-    padding: 48px 0 40px;
-  }
-  .score-ring {
-    width: 140px; height: 140px;
-    margin: 0 auto 28px;
-    position: relative;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .score-ring svg {
-    position: absolute; inset: 0;
-    transform: rotate(-90deg);
-  }
-  .score-ring circle {
-    fill: none;
-    stroke-width: 6;
-    stroke-linecap: round;
-  }
-  .score-ring .track { stroke: rgba(255,255,255,0.08); }
-  .score-ring .fill {
-    stroke: url(#scoreGrad);
-    stroke-dasharray: 0 1000;
-    transition: stroke-dasharray 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .score-inner {
-    text-align: center;
-    z-index: 1;
-  }
-  .score-number {
-    font-family: 'Playfair Display', serif;
-    font-size: 40px; font-weight: 700;
-    line-height: 1;
-    color: var(--white);
-  }
-  .score-total { font-size: 13px; color: var(--silver); }
+.overall-score-block {
+  text-align: center;
+  padding: 24px 32px;
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  min-width: 160px;
+}
+.overall-score-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 56px; font-weight: 700;
+  line-height: 1; color: var(--teal-light);
+}
+.overall-score-denom { font-size: 18px; color: var(--silver); }
+.overall-score-label { font-size: 11px; color: var(--silver); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 6px; }
 
-  .tier-badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 8px 20px;
-    border-radius: 100px;
-    font-size: 12px; font-weight: 600;
-    letter-spacing: 0.1em; text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .tier-badge.t1 { background: rgba(180,50,50,0.15); border: 1px solid rgba(180,50,50,0.4); color: #E07070; }
-  .tier-badge.t2 { background: rgba(200,130,40,0.15); border: 1px solid rgba(200,130,40,0.4); color: #E8A050; }
-  .tier-badge.t3 { background: rgba(60,140,100,0.15); border: 1px solid rgba(60,140,100,0.4); color: #60C090; }
-  .tier-badge.t4 { background: rgba(40,100,200,0.15); border: 1px solid rgba(40,100,200,0.4); color: #70A8F0; }
-  .tier-badge.t5 { background: rgba(140,60,200,0.15); border: 1px solid rgba(140,60,200,0.4); color: #B080F0; }
+.tier-pill {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px;
+  border-radius: 100px;
+  font-size: 12px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.tier-tagline { font-size: 14px; color: var(--silver); font-weight: 300; }
 
-  .tier-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+/* Dimension radar / scores */
+.dimensions-section { margin-bottom: 32px; }
+.section-title-bar {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 20px;
+}
+.section-title-bar h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; font-weight: 700;
+}
+.section-title-bar::after {
+  content: ''; flex: 1; height: 1px;
+  background: var(--border);
+}
 
-  .tier-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(28px, 4vw, 40px);
-    font-weight: 700;
-    margin-bottom: 10px;
-  }
-  .tier-tagline {
-    font-size: 15px; color: var(--silver);
-    font-weight: 300;
-    margin-bottom: 0;
-  }
+.dim-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.dim-card {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.dim-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.dim-icon { font-size: 22px; margin-bottom: 10px; }
+.dim-name { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--silver); margin-bottom: 8px; }
+.dim-score-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
+.dim-score-big {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px; font-weight: 700; line-height: 1;
+}
+.dim-score-max { font-size: 13px; color: var(--silver); }
+.dim-bar { height: 4px; background: rgba(255,255,255,0.08); border-radius: 100px; overflow: hidden; }
+.dim-bar-fill { height: 100%; border-radius: 100px; transition: width 1s ease; }
+.dim-tier-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 8px; }
 
-  /* ── Results cards ── */
-  .results-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 24px; }
-  @media(min-width: 560px) { .results-grid { grid-template-columns: 1fr 1fr; } }
+/* Radar chart */
+.radar-wrap {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#radarCanvas { max-width: 100%; }
 
-  .result-card {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 24px 20px;
-    backdrop-filter: blur(10px);
-  }
-  @media(min-width: 480px) { .result-card { padding: 28px; } }
-  .result-card-full { grid-column: 1 / -1; }
+/* ══ BANG FOR BUCK CHART ══ */
+.bfb-wrap {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 32px;
+}
+.bfb-canvas-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 60%;
+  margin: 20px 0 8px;
+}
+#bfbCanvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+.bfb-legend {
+  display: flex; gap: 16px; flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: 11px; color: var(--silver);
+}
+.bfb-legend-item { display: flex; align-items: center; gap: 6px; }
+.bfb-dot { width: 10px; height: 10px; border-radius: 50%; }
 
-  .card-label {
-    font-size: 10px; font-weight: 600;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .card-label::after {
-    content: '';
-    flex: 1; height: 1px;
-    background: rgba(200,146,42,0.2);
-  }
-  .feel-list, .help-list {
-    list-style: none;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .feel-list li, .help-list li {
-    display: flex; align-items: flex-start; gap: 10px;
-    font-size: 13px; font-weight: 400;
-    color: rgba(255,255,255,0.8);
-    line-height: 1.4;
-  }
-  .feel-list li::before {
-    content: '—';
-    color: var(--accent);
-    flex-shrink: 0;
-    margin-top: 1px;
-    font-weight: 600;
-  }
-  .help-list li::before {
-    content: '→';
-    color: var(--accent-light);
-    flex-shrink: 0;
-    margin-top: 1px;
-    font-weight: 600;
-  }
+/* ══ ROADMAP TABLE ══ */
+.roadmap-section { margin-bottom: 32px; }
+.roadmap-tabs {
+  display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.roadmap-tab {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border);
+  color: var(--silver);
+  background: var(--mist);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+.roadmap-tab.active {
+  background: var(--teal-mist);
+  border-color: var(--teal);
+  color: var(--teal-light);
+}
+.roadmap-table { width: 100%; border-collapse: collapse; }
+.roadmap-table th {
+  text-align: left;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--silver);
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.roadmap-table td {
+  padding: 14px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  vertical-align: top;
+  line-height: 1.45;
+}
+.roadmap-table tr:hover td { background: rgba(255,255,255,0.02); }
+.roadmap-pane { display: none; }
+.roadmap-pane.active { display: block; }
 
-  /* ── Maturity ladder ── */
-  .ladder {
-    background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 28px;
-    margin-bottom: 24px;
-  }
-  .ladder-title {
-    font-size: 10px; font-weight: 600;
-    letter-spacing: 0.18em; text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 20px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .ladder-title::after {
-    content: '';
-    flex: 1; height: 1px;
-    background: rgba(200,146,42,0.2);
-  }
-  .ladder-steps { display: flex; gap: 0; }
-  .ladder-step {
-    flex: 1;
-    display: flex; flex-direction: column; align-items: center;
-    position: relative;
-    padding-bottom: 16px;
-  }
-  .ladder-step:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    top: 14px; right: 0;
-    width: 50%; height: 2px;
-    background: rgba(255,255,255,0.06);
-    z-index: 0;
-  }
-  .ladder-step:not(:first-child)::before {
-    content: '';
-    position: absolute;
-    top: 14px; left: 0;
-    width: 50%; height: 2px;
-    background: rgba(255,255,255,0.06);
-    z-index: 0;
-  }
-  .ladder-step.active::after,
-  .ladder-step.active::before,
-  .ladder-step.past::after,
-  .ladder-step.past::before {
-    background: rgba(200,146,42,0.35);
-  }
-  .ladder-dot {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 600;
-    z-index: 1;
-    transition: all 0.3s;
-    border: 2px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
-    color: var(--silver);
-    margin-bottom: 10px;
-  }
-  .ladder-step.past .ladder-dot {
-    background: rgba(200,146,42,0.15);
-    border-color: rgba(200,146,42,0.5);
-    color: var(--accent-light);
-  }
-  .ladder-step.active .ladder-dot {
-    background: var(--accent);
-    border-color: var(--accent-light);
-    color: var(--navy);
-    box-shadow: 0 0 20px rgba(200,146,42,0.5);
-    font-weight: 700;
-  }
-  .ladder-name {
-    font-size: 8px; font-weight: 600;
-    letter-spacing: 0.04em; text-transform: uppercase;
-    text-align: center;
-    color: var(--silver);
-    line-height: 1.3;
-    max-width: 52px;
-    word-break: break-word;
-  }
-  .ladder-step.active .ladder-name { color: var(--accent-light); }
+.impact-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.impact-high { background: rgba(59,171,122,0.15); color: var(--ok); }
+.impact-med  { background: rgba(232,148,58,0.15); color: var(--warn); }
+.impact-low  { background: rgba(107,128,153,0.15); color: var(--silver); }
 
-  /* ── Next step banner ── */
-  .next-step-banner {
-    background: linear-gradient(135deg, rgba(200,146,42,0.12), rgba(232,176,74,0.06));
-    border: 1px solid rgba(200,146,42,0.25);
-    border-radius: 14px;
-    padding: 24px 20px;
-    margin-bottom: 36px;
-    display: flex; align-items: flex-start; gap: 16px;
-  }
-  @media(min-width: 480px) { .next-step-banner { padding: 28px 32px; align-items: center; gap: 20px; } }
-  .next-step-icon {
-    width: 48px; height: 48px; flex-shrink: 0;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 22px;
-  }
-  .next-step-label {
-    font-size: 10px; font-weight: 600;
-    letter-spacing: 0.15em; text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 4px;
-  }
-  .next-step-text {
-    font-size: 14px; font-weight: 400;
-    color: rgba(255,255,255,0.9);
-    line-height: 1.5;
-  }
+.cost-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 10px; font-weight: 600;
+}
+.cost-low  { background: rgba(59,171,122,0.1); color: var(--ok); border: 1px solid rgba(59,171,122,0.3); }
+.cost-med  { background: rgba(232,148,58,0.1); color: var(--warn); border: 1px solid rgba(232,148,58,0.3); }
+.cost-high { background: rgba(224,85,85,0.1); color: var(--danger); border: 1px solid rgba(224,85,85,0.3); }
 
-  /* ── CTA ── */
-  .cta-section {
-    text-align: center;
-    padding: 40px 0 0;
-    border-top: 1px solid var(--border);
-  }
-  .cta-section p {
-    font-size: 14px; color: var(--silver);
-    margin-bottom: 20px;
-  }
-  .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  @media(max-width: 400px) {
-    .cta-btns { flex-direction: column; align-items: center; }
-    .cta-btns .btn-primary, .cta-btns .btn-ghost { width: 100%; justify-content: center; }
-  }
+/* ══ DIMENSION FINDINGS ══ */
+.findings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+@media(max-width: 600px) { .findings-grid { grid-template-columns: 1fr; } }
 
-  /* ── User info bar ── */
-  .user-bar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 14px 20px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 28px;
-  }
-  .user-avatar {
-    width: 36px; height: 36px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 15px; font-weight: 700;
-    color: var(--navy);
-    flex-shrink: 0;
-  }
-  .user-info { flex: 1; }
-  .user-name { font-size: 14px; font-weight: 500; }
-  .user-detail { font-size: 12px; color: var(--silver); }
+.finding-card {
+  background: var(--mist);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+}
+.finding-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.finding-icon { font-size: 20px; }
+.finding-name { font-size: 13px; font-weight: 600; }
+.finding-score-pill {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px; font-weight: 700;
+}
+.finding-text { font-size: 12px; color: var(--silver); line-height: 1.55; margin-bottom: 12px; }
+.finding-recs { display: flex; flex-direction: column; gap: 6px; }
+.finding-rec {
+  display: flex; gap: 8px;
+  font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.4;
+}
+.finding-rec::before { content: '›'; color: var(--teal-light); flex-shrink: 0; font-weight: 600; }
 
-  /* ── Divider ── */
-  .section-gap { height: 16px; }
+/* ══ CTA ══ */
+.results-cta {
+  background: linear-gradient(135deg, rgba(14,124,123,0.15), rgba(20,169,168,0.06));
+  border: 1px solid rgba(14,124,123,0.3);
+  border-radius: 16px;
+  padding: 36px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+.results-cta h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700;
+  margin-bottom: 10px;
+}
+.results-cta p { font-size: 14px; color: var(--silver); margin-bottom: 24px; }
+.cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+/* Color utilities */
+.c-teal { color: var(--teal-light); }
+.c-gold { color: var(--gold-light); }
+.c-silver { color: var(--silver); }
+.c-ok { color: var(--ok); }
+.c-warn { color: var(--warn); }
+.c-danger { color: var(--danger); }
+.c-great { color: var(--great); }
+.c-best { color: var(--best); }
+
+/* Tier colors */
+.t-reactive   { color: var(--danger); }
+.t-emerging   { color: var(--warn); }
+.t-integrated { color: var(--ok); }
+.t-optimized  { color: var(--great); }
+.t-leading    { color: var(--best); }
+
+.pill-reactive   { background: rgba(224,85,85,0.15); border: 1px solid rgba(224,85,85,0.4); color: var(--danger); }
+.pill-emerging   { background: rgba(232,148,58,0.15); border: 1px solid rgba(232,148,58,0.4); color: var(--warn); }
+.pill-integrated { background: rgba(59,171,122,0.15); border: 1px solid rgba(59,171,122,0.4); color: var(--ok); }
+.pill-optimized  { background: rgba(58,139,232,0.15); border: 1px solid rgba(58,139,232,0.4); color: var(--great); }
+.pill-leading    { background: rgba(138,92,246,0.15); border: 1px solid rgba(138,92,246,0.4); color: var(--best); }
+
+.bar-reactive   { background: var(--danger); }
+.bar-emerging   { background: var(--warn); }
+.bar-integrated { background: var(--ok); }
+.bar-optimized  { background: var(--great); }
+.bar-leading    { background: var(--best); }
+.top-reactive   { background: var(--danger); }
+.top-emerging   { background: var(--warn); }
+.top-integrated { background: var(--ok); }
+.top-optimized  { background: var(--great); }
+.top-leading    { background: var(--best); }
 </style>
 </head>
 <body>
-<div class="grid-overlay"></div>
-
+<div class="noise"></div>
 <div class="shell">
   <div class="brand">
     <div class="brand-mark">H</div>
-    <div class="brand-text">HGS Advisory</div>
+    <div class="brand-name">HGS Advisory</div>
+    <div class="brand-divider"></div>
+    <div class="brand-tag">FP&A Maturity Assessment</div>
   </div>
 
-  <!-- SCREEN 1: INTRO -->
+  <!-- ══ SCREEN: INTRO ══ -->
   <div id="screen-intro" class="screen active">
-    <div class="eyebrow">FP&amp;A Diagnostic</div>
-    <h1 class="hero-title">Planning <span>Maturity</span><br>Assessment</h1>
-    <p class="hero-sub">Five questions. Sixty seconds. A clear picture of where your planning capabilities stand — and where they could go.</p>
+    <div class="eyebrow">Deep-Dive Diagnostic</div>
+    <h1 class="hero-title">FP&amp;A <em>Maturity</em><br>Deep-Dive Assessment</h1>
+    <p class="hero-sub">A comprehensive diagnostic across 8 capability dimensions. Designed to surface exactly where you are, where you should go, and what actions will deliver the greatest return.</p>
 
-    <div class="meta-chips">
-      <span class="chip">⏱ 60–90 seconds</span>
-      <span class="chip">5 questions</span>
-      <span class="chip">Instant results</span>
+    <div class="assessment-meta">
+      <div class="meta-item"><div class="meta-num">8</div><div class="meta-desc">Capability Dimensions</div></div>
+      <div class="meta-item"><div class="meta-num">40</div><div class="meta-desc">Diagnostic Questions</div></div>
+      <div class="meta-item"><div class="meta-num">15–20</div><div class="meta-desc">Minutes to Complete</div></div>
+      <div class="meta-item"><div class="meta-num">30+</div><div class="meta-desc">Tailored Recommendations</div></div>
     </div>
 
-    <div class="field-group">
-      <div class="field-row">
+    <div class="field-section">
+      <div class="field-section-title">About You</div>
+      <div class="field-grid">
         <div class="field">
-          <label>Full Name</label>
-          <input type="text" id="input-name" placeholder="Jane Smith" />
+          <label>Full Name *</label>
+          <input type="text" id="f-name" placeholder="Jane Smith" />
         </div>
         <div class="field">
-          <label>Role / Title</label>
-          <input type="text" id="input-role" placeholder="VP Finance" />
+          <label>Title / Role *</label>
+          <input type="text" id="f-role" placeholder="VP Finance" />
         </div>
-      </div>
-      <div class="field">
-        <label>Organization</label>
-        <input type="text" id="input-org" placeholder="Acme Corporation" />
+        <div class="field field-full">
+          <label>Organization *</label>
+          <input type="text" id="f-org" placeholder="Acme Corporation" />
+        </div>
+        <div class="field">
+          <label>Industry</label>
+          <select id="f-industry">
+            <option value="">Select…</option>
+            <option>Financial Services</option>
+            <option>Healthcare & Life Sciences</option>
+            <option>Manufacturing</option>
+            <option>Retail & Consumer</option>
+            <option>Technology & SaaS</option>
+            <option>Energy & Utilities</option>
+            <option>Professional Services</option>
+            <option>Public Sector</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Company Size</label>
+          <select id="f-size">
+            <option value="">Select…</option>
+            <option>&lt;$100M revenue</option>
+            <option>$100M–$500M</option>
+            <option>$500M–$2B</option>
+            <option>$2B–$10B</option>
+            <option>$10B+</option>
+          </select>
+        </div>
       </div>
     </div>
 
-    <button class="btn-primary" id="btn-start" onclick="startQuiz()" disabled>
+    <div class="field-section">
+      <div class="field-section-title">Assessment Context</div>
+      <div class="field-grid">
+        <div class="field">
+          <label>HGS Advisor</label>
+          <input type="text" id="f-advisor" placeholder="Advisor name (optional)" />
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="f-date" />
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="btn-start" onclick="startAssessment()" disabled style="width:100%;max-width:300px;">
       Begin Assessment
       <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
     </button>
   </div>
 
-  <!-- SCREEN 2: QUIZ -->
+  <!-- ══ SCREEN: QUIZ ══ -->
   <div id="screen-quiz" class="screen">
-    <div class="progress-bar-track">
-      <div class="progress-bar-fill" id="progress-fill" style="width:0%"></div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="quiz-progress" style="width:0%"></div></div>
+      <div class="progress-meta">
+        <span id="progress-section-label">Section 1 of 8</span>
+        <span id="progress-q-label">0 of 40 answered</span>
+      </div>
     </div>
-    <div class="progress-label" id="progress-label">Question 1 of 5</div>
-
-    <div class="question-card" id="question-card">
-      <!-- populated by JS -->
-    </div>
-
-    <div class="question-nav">
-      <button class="btn-ghost" id="btn-back" onclick="prevQuestion()">← Back</button>
-      <button class="btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
-        Next
+    <div class="section-tabs" id="section-tabs"></div>
+    <div style="height:24px"></div>
+    <div id="quiz-body"></div>
+    <div class="section-nav">
+      <button class="btn-ghost" id="btn-prev" onclick="prevSection()">← Previous</button>
+      <span class="section-progress-text" id="section-progress-text"></span>
+      <button class="btn-primary" id="btn-next-section" onclick="nextSection()">
+        Next Section
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
       </button>
     </div>
   </div>
 
-  <!-- SCREEN 3: RESULTS -->
-  <div id="screen-results" class="screen">
-    <!-- populated by JS -->
-  </div>
+  <!-- ══ SCREEN: RESULTS ══ -->
+  <div id="screen-results" class="screen"></div>
 </div>
 
 <script>
-const questions = [
+// ══════════════════════════════════════════════
+// DATA: 8 SECTIONS × 5 QUESTIONS
+// ══════════════════════════════════════════════
+const SECTIONS = [
   {
-    number: 1,
-    context: "Qualification + Maturity",
-    text: "What do you mainly use for planning today?",
-    options: [
-      { text: "Excel / Google Sheets", score: 1 },
-      { text: "Excel + add-ins (Power Query, Power Pivot, VBA, etc.)", score: 2 },
-      { text: "An FP&A tool (e.g., Anaplan, Pigment, Board, SAC etc.)", score: 3 },
-      { text: "ERP-native planning (e.g., SAP, Oracle, Workday)", score: 4 },
-      { text: "Not sure / mix of tools", score: 2 },
+    id: 'tools',
+    name: 'Planning Tools & Technology',
+    icon: '🖥️',
+    desc: 'Evaluates your core planning platform, integration depth, and technology maturity.',
+    questions: [
+      { text: 'What is your primary planning and budgeting tool?',
+        options: ['Excel/Google Sheets only','Excel with advanced add-ins (Power Query, VBA, Power Pivot)','A dedicated FP&A platform (Anaplan, Pigment, Adaptive, etc.)','ERP-native planning module (SAP BPC, Oracle EPM, Workday Adaptive)','Enterprise-grade platform with custom integrations'] },
+      { text: 'How would you describe your system integration landscape?',
+        options: ['Mostly manual exports/imports between systems','Some automated feeds but significant manual intervention','Partial API integrations with key source systems','Most financial and operational data flows automatically','Fully integrated data mesh with near real-time synchronization'] },
+      { text: 'How do users access and interact with planning models?',
+        options: ['Centralized — only finance team edits spreadsheets','Shared files with basic version control','Web-based tool with role-based access','Collaborative platform with workflow and approvals','Self-service platform accessible across all business units'] },
+      { text: 'How is your planning technology maintained and governed?',
+        options: ['Ad-hoc — individuals manage their own models','Finance team manages but no formal process','IT-supported with documented change management','Dedicated FP&A platform admin with governance framework','Center of Excellence managing platform with continuous improvement'] },
+      { text: 'How scalable is your current planning technology?',
+        options: ['Cannot handle more data/users without significant effort','Struggles at current scale, workarounds in place','Handles current needs, limited headroom','Scales well, some customization needed for growth','Architected for enterprise scale with performance SLAs'] },
     ]
   },
   {
-    number: 2,
-    context: "Maturity Signal",
-    text: "How often do you update your forecast?",
-    options: [
-      { text: "Annual budget only", score: 1 },
-      { text: "1–2 reforecasts per year", score: 2 },
-      { text: "Rolling forecast", score: 3 },
-      { text: "Continuous forecasting with scenarios", score: 4 },
+    id: 'forecast',
+    name: 'Forecasting & Frequency',
+    icon: '📈',
+    desc: 'Assesses the cadence, accuracy, and methodology of your forecasting process.',
+    questions: [
+      { text: 'What best describes your forecasting cycle?',
+        options: ['Annual budget only — no in-year reforecast','1–2 formal reforecasts per year','Quarterly reforecasting process','Monthly rolling forecast (12–18 months horizon)','Continuous forecasting with weekly or event-driven updates'] },
+      { text: 'How would you characterize your forecast methodology?',
+        options: ['Prior year actuals plus a percentage increase','Static assumptions set at budget time','Combination of top-down targets and bottom-up inputs','Driver-based model with explicit business assumptions','Machine learning or statistical models inform the baseline'] },
+      { text: 'How do you handle scenario planning?',
+        options: ['We do not produce scenarios','Ad-hoc scenarios produced occasionally upon request','2–3 scenarios (base/upside/downside) at budget time','Dynamic scenario modeling available on demand','Real-time scenario engine integrated into decision-making'] },
+      { text: 'How do you measure and act on forecast accuracy?',
+        options: ['We do not formally measure forecast accuracy','We review actuals vs. budget at year end','Monthly actuals vs. forecast variance review','Formal forecast accuracy KPIs tracked and reported','Accuracy metrics drive model calibration and assumption refinement'] },
+      { text: 'How quickly can you produce an updated forecast?',
+        options: ['Weeks — major coordination effort required','1–2 weeks with significant manual effort','3–5 business days','1–2 business days with defined process','Same day — automated refresh with human review'] },
     ]
   },
   {
-    number: 3,
-    context: "Value Positioning",
-    text: "Where does your FP&A team spend most of its time?",
-    options: [
-      { text: "Collecting and cleaning data", score: 1 },
-      { text: "Preparing forecasts and reports", score: 2 },
-      { text: "Analyzing results with the business", score: 3 },
-      { text: "Advising on decisions and scenarios", score: 4 },
+    id: 'data',
+    name: 'Data & Integration',
+    icon: '🗄️',
+    desc: 'Examines data quality, lineage, accessibility, and integration with operational systems.',
+    questions: [
+      { text: 'How would you describe your planning data quality?',
+        options: ['Frequent errors, no validation process','Periodic data quality reviews, issues are common','Data validation exists but exceptions occur regularly','Strong data governance with defined quality standards','Automated data quality monitoring with real-time alerts'] },
+      { text: 'How long does it take to get financial data ready for analysis?',
+        options: ['Days to weeks due to manual extraction and cleansing','1–3 days with significant effort','Half a day to a day','A few hours with some automation','Near real-time — data pipelines are automated and reliable'] },
+      { text: 'What operational data sources feed your planning models?',
+        options: ['Finance/ERP only','Finance + HR headcount data','Finance + HR + Sales pipeline data','Finance + HR + Sales + Operations data','Full enterprise data including external benchmarks and market data'] },
+      { text: 'How is master data (cost centers, entities, hierarchies) managed?',
+        options: ['Inconsistent — each system manages its own','Spreadsheet-based master data maintained by finance','Basic MDM process with periodic reconciliation','Centralized MDM system with governance','Enterprise MDM platform integrated across all systems'] },
+      { text: 'How do you manage data lineage and auditability?',
+        options: ['No tracking — difficult to trace numbers to sources','Manual documentation in notes or spreadsheets','Basic audit trail in planning tool','Full data lineage with documented calculation logic','Automated lineage tracking with impact analysis capabilities'] },
     ]
   },
   {
-    number: 4,
-    context: "xP&A Signal",
-    text: "Which teams actively participate in planning?",
-    options: [
-      { text: "Finance only", score: 1 },
-      { text: "Finance + HR", score: 2 },
-      { text: "Finance + Sales + HR", score: 3 },
-      { text: "Finance + Operations + Commercial (xP&A)", score: 4 },
+    id: 'reporting',
+    name: 'Reporting & Analytics',
+    icon: '📊',
+    desc: 'Reviews the quality, speed, and depth of financial and operational reporting.',
+    questions: [
+      { text: 'How is your management reporting produced?',
+        options: ['Manual compilation in Excel, emailed as attachments','Semi-automated with significant manual formatting','Partially automated with standard report templates','Automated delivery with dynamic drill-down capability','Real-time dashboards with embedded analytics and narratives'] },
+      { text: 'What analytics capabilities does your FP&A team have?',
+        options: ['Descriptive only — what happened','Descriptive with some trend analysis','Diagnostic analytics — why it happened','Predictive capabilities — what will happen','Prescriptive analytics — what should we do'] },
+      { text: 'How do business partners access financial performance data?',
+        options: ['They request reports from finance — can take days','Regular scheduled reports pushed to stakeholders','Self-service dashboards for standard reports','Interactive dashboards with business context and commentary','Embedded analytics in operational workflows with alerts'] },
+      { text: 'How quickly can you close the books and produce management reports?',
+        options: ['15+ business days','10–14 business days','7–9 business days','4–6 business days','1–3 business days (virtual close)'] },
+      { text: 'How do you handle narrative and insight in financial reporting?',
+        options: ['Data only — no narrative context','Basic variance commentary added manually','Structured templates for variance analysis','Insightful narrative linking financials to business drivers','Automated anomaly detection with AI-assisted narrative generation'] },
     ]
   },
   {
-    number: 5,
-    context: "Future-looking + AI Hook",
-    text: "Are you using advanced analytics or AI in planning?",
-    options: [
-      { text: "No", score: 1 },
-      { text: "Basic drivers & what-if analysis", score: 2 },
-      { text: "Statistical forecasting", score: 3 },
-      { text: "AI-assisted forecasting or recommendations", score: 4 },
+    id: 'xpna',
+    name: 'Cross-functional Collaboration (xP&A)',
+    icon: '🤝',
+    desc: 'Measures the breadth and depth of planning integration across business functions.',
+    questions: [
+      { text: 'Which functions actively participate in the planning process?',
+        options: ['Finance only','Finance and HR (headcount/compensation)','Finance, HR, and Sales (revenue planning)','Finance, HR, Sales, and Operations','All functions including Marketing, Supply Chain, and IT (full xP&A)'] },
+      { text: 'How are business unit owners engaged in forecast updates?',
+        options: ['They are not — finance owns the entire process','Finance solicits inputs via email/spreadsheet','Business units submit updates through a shared tool','Business units self-manage inputs in the planning platform','Business units own their plans with finance in a business partnering role'] },
+      { text: 'How well does your financial plan connect to operational plans?',
+        options: ['They are separate — no formal linkage','Manual reconciliation at planning time only','Key operational metrics inform financial assumptions','Financial and operational plans share common drivers','Fully integrated — operational decisions automatically flow to financial forecasts'] },
+      { text: 'How effective is finance as a strategic business partner?',
+        options: ['Finance is primarily a reporting and compliance function','Finance answers ad-hoc questions from the business','Finance proactively shares insights with business leaders','Finance co-owns business decisions with operational leaders','Finance leads strategic dialogue and is embedded in business planning'] },
+      { text: 'How do you manage planning across multiple legal entities or geographies?',
+        options: ['Manual consolidation is a significant challenge','Spreadsheet-based consolidation with local templates','Centralized tool with local input capability','Automated consolidation with currency and intercompany handling','Real-time global visibility with dynamic consolidation and segmentation'] },
+    ]
+  },
+  {
+    id: 'ai',
+    name: 'AI & Automation Readiness',
+    icon: '🤖',
+    desc: 'Explores your current use and readiness to adopt AI, ML, and intelligent automation.',
+    questions: [
+      { text: 'How is AI or machine learning currently used in planning?',
+        options: ['Not used at all','Exploratory — evaluating use cases','Basic automation (RPA, macros, scheduled reports)','Statistical forecasting or anomaly detection deployed','AI-assisted forecasting with continuous model learning'] },
+      { text: 'What is your organization\'s data readiness for AI adoption?',
+        options: ['Data is too fragmented and inconsistent to support AI','Partial data cleanliness — significant work needed','Core financial data is clean; operational data needs work','Most data is structured and accessible for AI use','High-quality, well-governed data across all domains'] },
+      { text: 'How do you currently handle repetitive FP&A tasks (data pulls, formatting, consolidation)?',
+        options: ['Entirely manual — consumes significant team time','Some macros or scripts in place ad-hoc','Partially automated with some manual steps remaining','Mostly automated with exception-based human review','Fully automated workflows with intelligent exception handling'] },
+      { text: 'How does your organization view AI adoption in finance?',
+        options: ['Skeptical or unaware of AI opportunities in FP&A','Interested but lack budget or sponsorship','Active pilots underway with executive awareness','Strategic priority with dedicated investment and roadmap','AI is embedded in the finance operating model with governance'] },
+      { text: 'How prepared is your team to work with AI-driven insights?',
+        options: ['Limited digital literacy — change management needed','Awareness exists but skills gap is significant','Some team members have data science or analytics skills','Most of the team can interpret and act on AI outputs','Team actively designs and validates AI models and outputs'] },
+    ]
+  },
+  {
+    id: 'process',
+    name: 'Process & Governance',
+    icon: '⚙️',
+    desc: 'Assesses the maturity of planning processes, controls, and governance frameworks.',
+    questions: [
+      { text: 'How formal and documented are your planning processes?',
+        options: ['Informal — heavily reliant on individual knowledge','Some documentation but not consistently followed','Documented processes, inconsistently enforced','Well-documented, enforced, and regularly reviewed','ISO-level process maturity with continuous improvement cycles'] },
+      { text: 'How is the annual planning calendar managed?',
+        options: ['Ad-hoc — planning starts when someone raises it','Rough timeline exists but frequently shifts','Formal calendar with milestones distributed to stakeholders','Automated workflow with escalation paths and status tracking','Integrated planning calendar embedded in governance framework'] },
+      { text: 'How are planning assumptions reviewed and approved?',
+        options: ['No formal review — assumptions set by finance alone','Finance circulates assumptions for informal input','Finance and FP&A leadership review and approve assumptions','Cross-functional assumptions review with executive sign-off','Structured assumption governance with sensitivity analysis and documentation'] },
+      { text: 'How do you manage version control and audit trails in planning?',
+        options: ['No version control — file naming is informal','Folder-based version management (v1, v2, final, FINAL2)','Formal naming convention and archiving','Platform-managed versioning with timestamps and user tracking','Full audit trail with automated change log and approvals workflow'] },
+      { text: 'How is planning performance and efficiency measured?',
+        options: ['Not measured','Anecdotal feedback only','Basic KPIs (cycle time, on-time completion)','Formal SLAs with stakeholder satisfaction tracking','Benchmarked against industry standards with continuous improvement targets'] },
+    ]
+  },
+  {
+    id: 'team',
+    name: 'Team Structure & Skills',
+    icon: '👥',
+    desc: 'Evaluates team composition, skills, capacity, and development investment.',
+    questions: [
+      { text: 'How is your FP&A team structured?',
+        options: ['Generalist finance team — FP&A is one of many responsibilities','Dedicated FP&A team but limited specialization','FP&A team with some specialist roles (modeling, reporting)','FP&A Centers of Excellence with business-facing partners','Business-embedded FP&A with specialized COE and platform team'] },
+      { text: 'What is the primary skill profile of your FP&A team?',
+        options: ['Traditional accounting and bookkeeping skills','Strong financial reporting and variance analysis','Solid financial modeling and Excel skills','Mix of finance, data analytics, and business partnering','Blend of finance, data science, technology, and strategic advisory skills'] },
+      { text: 'What percentage of FP&A time is spent on value-added analysis vs. data/admin work?',
+        options: ['Less than 20% on analysis — most time is data gathering','20–35% on analysis','35–50% on analysis','50–70% on analysis','70%+ on analysis and strategic advisory activities'] },
+      { text: 'How does your organization invest in FP&A team development?',
+        options: ['No formal training or development investment','Ad-hoc training when gaps become critical','Annual training budget with some structured programs','Defined competency framework with career pathing','Continuous learning culture with external certification support and mentoring'] },
+      { text: 'How is FP&A capacity managed during peak planning cycles?',
+        options: ['Team regularly burns out — no capacity plan','Heroics and overtime are standard during budgeting','Temporary resources or consultants brought in reactively','Capacity planning in advance with planned resource augmentation','Agile resource model with flexible capacity and automation reducing peak load'] },
     ]
   }
 ];
 
-const tiers = [
-  {
-    id: 't1',
-    label: "Reactive",
-    tagline: "Manual. Siloed. Excel-driven.",
-    minScore: 0, maxScore: 6,
-    feels: ["Version control issues", "Long budget cycles", "Heavy reconciliation effort", "Limited business visibility"],
-    nextStep: "Move to Emerging / Defined",
-    help: [
-      "Assess current planning process (people, process, tech)",
-      "Design standardized planning framework",
-      "Implement structured FP&A model (cost, headcount, revenue)",
-      "Reduce manual effort with best-practice templates & governance",
-      "Build roadmap toward integrated platform"
-    ]
-  },
-  {
-    id: 't2',
-    label: "Emerging / Defined",
-    tagline: "Some structure. Early tools. Growing collaboration.",
-    minScore: 7, maxScore: 10,
-    feels: ["Improved visibility but still manual effort", "Tools not fully integrated", "Drivers not consistently defined", "Forecast cycles still slow"],
-    nextStep: "Move to Integrated / Aligned",
-    help: [
-      "Implement or optimize FP&A platform (Anaplan, SAC, Pigment, etc.)",
-      "Standardize drivers & assumptions",
-      "Connect workforce + cost planning to financial forecast",
-      "Integrate ERP / CRM data",
-      "Introduce rolling forecast framework"
-    ]
-  },
-  {
-    id: 't3',
-    label: "Integrated / Aligned",
-    tagline: "Enterprise platform in place. Cross-functional alignment.",
-    minScore: 11, maxScore: 15,
-    feels: ["Stronger cross-functional ownership", "Better forecasting discipline", "Increasing demand for faster insights", "Scenario planning still limited"],
-    nextStep: "Move to Optimized / Predictive",
-    help: [
-      "Introduce driver-based scenario modeling",
-      "Embed rolling and continuous forecasting",
-      "Implement statistical forecasting",
-      "Enhance data architecture & performance",
-      "Expand planning into full xP&A roadmap"
-    ]
-  },
-  {
-    id: 't4',
-    label: "Optimized / Predictive",
-    tagline: "Agile forecasting. Advanced analytics. Scenario-driven decisions.",
-    minScore: 16, maxScore: 19,
-    feels: ["Faster forecast cycles", "Better strategic alignment", "Data-informed decisions", "Desire for automation & AI"],
-    nextStep: "Move to Leading / Proactive",
-    help: [
-      "Implement predictive workforce & revenue models",
-      "Introduce AI-assisted forecasting",
-      "Automate anomaly detection",
-      "Enable decision intelligence dashboards",
-      "Integrate operational planning modules"
-    ]
-  },
-  {
-    id: 't5',
-    label: "Leading / Proactive",
-    tagline: "Continuous. AI-enabled. Fully converged planning.",
-    minScore: 20, maxScore: 20,
-    feels: ["Executive-ready insights on demand", "Scenario simulations in minutes", "Autonomous forecasting elements", "Continuous improvement mindset"],
-    nextStep: "Sustain & Expand Strategic Advantage",
-    help: [
-      "Implement agentic AI for planning",
-      "Design autonomous forecasting agents",
-      "Expand AI use cases (attrition risk, churn prediction, pipeline slippage)",
-      "Optimize cross-functional xP&A governance",
-      "Continuous improvement & roadmap evolution"
-    ]
-  }
-];
-
-const ladderLabels = ["Reactive", "Emerging", "Integrated", "Optimized", "Leading"];
-
-let answers = {};
-let currentQ = 0;
-
-// Enable start button
-['input-name', 'input-role', 'input-org'].forEach(id => {
-  document.getElementById(id).addEventListener('input', () => {
-    const ok = ['input-name','input-role','input-org'].every(i => document.getElementById(i).value.trim());
-    document.getElementById('btn-start').disabled = !ok;
-  });
-});
-
-function startQuiz() {
-  showScreen('screen-quiz');
-  renderQuestion();
+// Score → tier mapping
+function scoreTier(pct) {
+  if (pct < 0.35) return { key:'reactive',   label:'Reactive',   num:1 };
+  if (pct < 0.55) return { key:'emerging',   label:'Emerging',   num:2 };
+  if (pct < 0.72) return { key:'integrated', label:'Integrated', num:3 };
+  if (pct < 0.88) return { key:'optimized',  label:'Optimized',  num:4 };
+  return               { key:'leading',    label:'Leading',    num:5 };
 }
 
+// ── State ──
+let answers = {};  // [secIdx][qIdx] = optionIdx (0-4)
+let currentSection = 0;
+
+// ── Enable start ──
+['f-name','f-role','f-org'].forEach(id => {
+  document.getElementById(id).addEventListener('input', checkStart);
+});
+function checkStart() {
+  const ok = ['f-name','f-role','f-org'].every(i => document.getElementById(i).value.trim());
+  document.getElementById('btn-start').disabled = !ok;
+}
+// Set today's date
+document.getElementById('f-date').value = new Date().toISOString().split('T')[0];
+
+// ── Navigation ──
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  window.scrollTo({top: 0, behavior:'smooth'});
 }
 
-function renderQuestion() {
-  const q = questions[currentQ];
-  const pct = (currentQ / questions.length) * 100;
-  document.getElementById('progress-fill').style.width = pct + '%';
-  document.getElementById('progress-label').textContent = `Question ${currentQ + 1} of ${questions.length}`;
-  document.getElementById('btn-back').style.visibility = currentQ === 0 ? 'hidden' : 'visible';
+function startAssessment() {
+  currentSection = 0;
+  renderQuiz();
+  showScreen('screen-quiz');
+}
 
-  const selected = answers[currentQ];
-  const card = document.getElementById('question-card');
-  card.style.opacity = '0';
-  card.style.transform = 'translateY(10px)';
-  setTimeout(() => {
-    card.innerHTML = `
-      <div class="question-number">Question ${q.number} of ${questions.length}</div>
-      <div class="question-context">${q.context}</div>
-      <div class="question-text">${q.text}</div>
-      <div class="options">
-        ${q.options.map((opt, i) => `
-          <label class="option-label ${selected === i ? 'selected' : ''}" onclick="selectOption(${i})">
-            <input type="radio" name="q${currentQ}" ${selected === i ? 'checked' : ''}/>
-            <div class="option-radio"></div>
-            <span class="option-text">${opt.text}</span>
-          </label>
-        `).join('')}
+function renderQuiz() {
+  renderSectionTabs();
+  renderSection();
+  updateProgress();
+}
+
+function renderSectionTabs() {
+  const wrap = document.getElementById('section-tabs');
+  wrap.innerHTML = SECTIONS.map((s, i) => {
+    const isDone = answers[i] && Object.keys(answers[i]).length === s.questions.length;
+    const cls = i === currentSection ? 'active' : (isDone ? 'done' : '');
+    return `<div class="section-tab ${cls}">${isDone ? '✓ ' : ''}${s.name}</div>`;
+  }).join('');
+}
+
+function renderSection() {
+  const sec = SECTIONS[currentSection];
+  const secAnswers = answers[currentSection] || {};
+
+  const html = `
+    <div class="section-header">
+      <div class="section-icon">${sec.icon}</div>
+      <div class="section-name">${sec.name}</div>
+      <div class="section-desc">${sec.desc}</div>
+    </div>
+    ${sec.questions.map((q, qi) => `
+      <div class="q-card ${secAnswers[qi] !== undefined ? 'answered' : ''}" id="qcard-${qi}">
+        <div class="q-num">Question ${qi + 1} of ${sec.questions.length}</div>
+        <div class="q-text">${q.text}</div>
+        <div class="q-options">
+          ${q.options.map((opt, oi) => `
+            <div class="q-option ${secAnswers[qi] === oi ? 'selected' : ''}" onclick="selectAnswer(${qi}, ${oi})">
+              <div class="q-radio"></div>
+              <span class="q-option-text">${opt}</span>
+              <span class="q-option-score">${oi + 1}</span>
+            </div>
+          `).join('')}
+        </div>
       </div>
-    `;
-    card.style.transition = 'opacity 0.3s, transform 0.3s';
-    card.style.opacity = '1';
-    card.style.transform = 'translateY(0)';
+    `).join('')}
+  `;
+  document.getElementById('quiz-body').innerHTML = html;
 
-    const isLast = currentQ === questions.length - 1;
-    const nextBtn = document.getElementById('btn-next');
-    nextBtn.innerHTML = isLast
-      ? 'See Results <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
-      : 'Next <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
-    nextBtn.disabled = selected === undefined;
-  }, 150);
+  // Update next button
+  const isLast = currentSection === SECTIONS.length - 1;
+  const nextBtn = document.getElementById('btn-next-section');
+  nextBtn.innerHTML = isLast
+    ? 'View My Results <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    : 'Next Section <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>';
+
+  document.getElementById('btn-prev').style.visibility = currentSection === 0 ? 'hidden' : 'visible';
+
+  const answered = Object.keys(secAnswers).length;
+  document.getElementById('section-progress-text').textContent = `${answered} / ${sec.questions.length} answered`;
+  updateNextButton();
 }
 
-function selectOption(i) {
-  answers[currentQ] = i;
-  document.querySelectorAll('.option-label').forEach((el, idx) => {
-    el.classList.toggle('selected', idx === i);
+function selectAnswer(qi, oi) {
+  if (!answers[currentSection]) answers[currentSection] = {};
+  answers[currentSection][qi] = oi;
+
+  // Update UI
+  const card = document.getElementById(`qcard-${qi}`);
+  if (card) {
+    card.classList.add('answered');
+    card.querySelectorAll('.q-option').forEach((el, idx) => {
+      el.classList.toggle('selected', idx === oi);
+    });
+  }
+
+  const answered = Object.keys(answers[currentSection]).length;
+  document.getElementById('section-progress-text').textContent = `${answered} / ${SECTIONS[currentSection].questions.length} answered`;
+  updateNextButton();
+  updateProgress();
+  renderSectionTabs();
+}
+
+function updateNextButton() {
+  const sec = SECTIONS[currentSection];
+  const answered = answers[currentSection] ? Object.keys(answers[currentSection]).length : 0;
+  document.getElementById('btn-next-section').disabled = answered < sec.questions.length;
+}
+
+function updateProgress() {
+  let total = 0, done = 0;
+  SECTIONS.forEach((s, i) => {
+    total += s.questions.length;
+    done += answers[i] ? Object.keys(answers[i]).length : 0;
   });
-  document.getElementById('btn-next').disabled = false;
+  document.getElementById('quiz-progress').style.width = ((done / total) * 100) + '%';
+  document.getElementById('progress-section-label').textContent = `Section ${currentSection + 1} of ${SECTIONS.length}`;
+  document.getElementById('progress-q-label').textContent = `${done} of ${total} answered`;
 }
 
-function nextQuestion() {
-  if (answers[currentQ] === undefined) return;
-  if (currentQ < questions.length - 1) {
-    currentQ++;
-    renderQuestion();
+function nextSection() {
+  const sec = SECTIONS[currentSection];
+  const answered = answers[currentSection] ? Object.keys(answers[currentSection]).length : 0;
+  if (answered < sec.questions.length) return;
+
+  if (currentSection < SECTIONS.length - 1) {
+    currentSection++;
+    renderQuiz();
+    window.scrollTo({top:0,behavior:'smooth'});
   } else {
-    showResults();
+    buildResults();
   }
 }
 
-function prevQuestion() {
-  if (currentQ > 0) { currentQ--; renderQuestion(); }
+function prevSection() {
+  if (currentSection > 0) {
+    currentSection--;
+    renderQuiz();
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
 }
 
-function showResults() {
-  const totalScore = Object.entries(answers).reduce((sum, [qi, oi]) => {
-    return sum + questions[parseInt(qi)].options[oi].score;
-  }, 0);
+// ══════════════════════════════════════════════
+// RESULTS ENGINE
+// ══════════════════════════════════════════════
+function buildResults() {
+  const name = document.getElementById('f-name').value.trim();
+  const role = document.getElementById('f-role').value.trim();
+  const org  = document.getElementById('f-org').value.trim();
+  const advisor = document.getElementById('f-advisor').value.trim();
+  const industry = document.getElementById('f-industry').value || 'Not specified';
+  const size = document.getElementById('f-size').value || 'Not specified';
+  const date = document.getElementById('f-date').value;
 
-  const tier = tiers.find(t => totalScore >= t.minScore && totalScore <= t.maxScore) || tiers[0];
-  const tierIndex = tiers.indexOf(tier);
+  // Calculate scores
+  const dimScores = SECTIONS.map((sec, si) => {
+    const secAnswers = answers[si] || {};
+    const raw = Object.values(secAnswers).reduce((s, v) => s + (v + 1), 0);
+    const maxRaw = sec.questions.length * 5;
+    const pct = raw / maxRaw;
+    const tier = scoreTier(pct);
+    return { ...sec, raw, maxRaw, pct, tier };
+  });
 
-  const name = document.getElementById('input-name').value.trim();
-  const role = document.getElementById('input-role').value.trim();
-  const org  = document.getElementById('input-org').value.trim();
-  const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+  const totalRaw = dimScores.reduce((s, d) => s + d.raw, 0);
+  const totalMax = dimScores.reduce((s, d) => s + d.maxRaw, 0);
+  const overallPct = totalRaw / totalMax;
+  const overallTier = scoreTier(overallPct);
+  const overallScore = Math.round(overallPct * 100);
 
-  const maxScore = 20;
-  const circumference = 2 * Math.PI * 54;
-  const filled = (totalScore / maxScore) * circumference;
+  // Build roadmap actions
+  const roadmap = buildRoadmap(dimScores);
 
-  const tierColorMap = {
-    t1: '#E07070', t2: '#E8A050', t3: '#60C090', t4: '#70A8F0', t5: '#B080F0'
-  };
-  const tc = tierColorMap[tier.id];
-
+  // Render
   document.getElementById('screen-results').innerHTML = `
-    <svg width="0" height="0" style="position:absolute">
-      <defs>
-        <linearGradient id="scoreGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${tc}"/>
-          <stop offset="100%" stop-color="var(--accent-light)"/>
-        </linearGradient>
-      </defs>
-    </svg>
-
-    <div class="user-bar">
-      <div class="user-avatar">${initials}</div>
-      <div class="user-info">
-        <div class="user-name">${name}</div>
-        <div class="user-detail">${role} · ${org}</div>
-      </div>
-    </div>
-
-    <div class="results-header">
-      <div class="score-ring" id="score-ring-el">
-        <svg viewBox="0 0 120 120" width="140" height="140">
-          <circle class="track" cx="60" cy="60" r="54"/>
-          <circle class="fill" id="ring-fill" cx="60" cy="60" r="54"
-            stroke-dasharray="0 ${circumference}"
-            stroke-dashoffset="0"/>
-        </svg>
-        <div class="score-inner">
-          <div class="score-number" id="score-display">0</div>
-          <div class="score-total">out of 20</div>
-        </div>
-      </div>
-
-      <div class="tier-badge ${tier.id}">
-        <div class="tier-dot"></div>
-        ${tier.label}
-      </div>
-      <h2 class="tier-title">Your Planning Readiness</h2>
-      <p class="tier-tagline">${tier.tagline}</p>
-    </div>
-
-    <!-- Maturity Ladder -->
-    <div class="ladder">
-      <div class="ladder-title">Your Position on the Maturity Spectrum</div>
-      <div class="ladder-steps">
-        ${ladderLabels.map((l, i) => `
-          <div class="ladder-step ${i < tierIndex ? 'past' : ''} ${i === tierIndex ? 'active' : ''}">
-            <div class="ladder-dot">${i + 1}</div>
-            <div class="ladder-name">${l}</div>
-          </div>
-        `).join('')}
-      </div>
-    </div>
-
-    <!-- Feel + Help cards -->
-    <div class="results-grid">
-      <div class="result-card">
-        <div class="card-label">What this feels like</div>
-        <ul class="feel-list">
-          ${tier.feels.map(f => `<li>${f}</li>`).join('')}
-        </ul>
-      </div>
-      <div class="result-card">
-        <div class="card-label">How HGS Can Help</div>
-        <ul class="help-list">
-          ${tier.help.map(h => `<li>${h}</li>`).join('')}
-        </ul>
-      </div>
-    </div>
-
-    <!-- Next step -->
-    <div class="next-step-banner">
-      <div class="next-step-icon">🎯</div>
-      <div>
-        <div class="next-step-label">Recommended Next Step</div>
-        <div class="next-step-text">${tier.nextStep}</div>
-      </div>
-    </div>
-
-    <!-- CTA -->
-    <div class="cta-section">
-      <p>Ready to accelerate your planning transformation?</p>
-      <div class="cta-btns">
-        <button class="btn-primary" onclick="alert('Connect with HGS Advisory — feature coming soon')">
-          Talk to an HGS Advisor
-          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-        </button>
-        <button class="btn-ghost" onclick="retake()">Retake Assessment</button>
-      </div>
-    </div>
+    ${renderResultsHero(name, role, org, date, overallScore, overallTier, industry, size, advisor)}
+    ${renderDimensionScores(dimScores)}
+    ${renderRadar(dimScores)}
+    ${renderBFBChart(roadmap)}
+    ${renderRoadmap(roadmap)}
+    ${renderFindings(dimScores)}
+    ${renderResultsCTA()}
   `;
 
   showScreen('screen-results');
 
-  // Animate score ring
+  // Animate after render
   setTimeout(() => {
-    document.getElementById('ring-fill').style.strokeDasharray = `${filled} ${circumference}`;
-    // Count up
-    let current = 0;
-    const target = totalScore;
-    const dur = 1200;
-    const step = dur / target;
-    const counter = setInterval(() => {
-      current++;
-      document.getElementById('score-display').textContent = current;
-      if (current >= target) clearInterval(counter);
-    }, step);
-  }, 200);
+    drawRadar(dimScores);
+    drawBFBChart(roadmap);
+    animateBars(dimScores);
+  }, 100);
+}
+
+function renderResultsHero(name, role, org, date, score, tier, industry, size, advisor) {
+  const formatted = date ? new Date(date).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}) : '';
+  return `
+  <div class="results-hero">
+    <div class="results-hero-left">
+      <div class="eyebrow">Assessment Results</div>
+      <div class="results-name">${name}</div>
+      <div class="results-org">${role} · ${org}</div>
+      <div class="tier-pill pill-${tier.key}">
+        <span>●</span> ${tier.label} Planning Organization
+      </div>
+      <div class="tier-tagline">${tierTagline(tier.key)}</div>
+      <div style="margin-top:20px; display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="font-size:12px; color:var(--silver)"><span style="color:var(--white);font-weight:500;">Industry:</span> ${industry}</div>
+        <div style="font-size:12px; color:var(--silver)"><span style="color:var(--white);font-weight:500;">Size:</span> ${size}</div>
+        ${formatted ? `<div style="font-size:12px; color:var(--silver)"><span style="color:var(--white);font-weight:500;">Date:</span> ${formatted}</div>` : ''}
+        ${advisor ? `<div style="font-size:12px; color:var(--silver)"><span style="color:var(--white);font-weight:500;">Advisor:</span> ${advisor}</div>` : ''}
+      </div>
+    </div>
+    <div class="overall-score-block">
+      <div class="overall-score-num c-${tier.key.replace('reactive','danger').replace('emerging','warn').replace('integrated','ok').replace('optimized','great').replace('leading','best')}" id="score-counter">0</div>
+      <div class="overall-score-denom" style="color:var(--silver)">/100</div>
+      <div class="overall-score-label">Overall Maturity</div>
+      <div style="margin-top:12px; font-size:11px; color:var(--silver);">Tier ${scoreTier(score/100).num} of 5</div>
+    </div>
+  </div>
+  `;
+}
+
+function tierTagline(key) {
+  return {
+    reactive:   'Manual, siloed processes with limited technology leverage.',
+    emerging:   'Structured foundation forming with early tool adoption.',
+    integrated: 'Enterprise platforms in place with cross-functional alignment.',
+    optimized:  'Agile, driver-based planning with advanced analytics.',
+    leading:    'Continuous, AI-enabled, fully converged planning enterprise.'
+  }[key] || '';
+}
+
+function renderDimensionScores(dimScores) {
+  const cards = dimScores.map(d => `
+    <div class="dim-card">
+      <div class="dim-card-top top-${d.tier.key}" style="position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0;"></div>
+      <div class="dim-icon">${d.icon}</div>
+      <div class="dim-name">${d.name}</div>
+      <div class="dim-score-row">
+        <div class="dim-score-big t-${d.tier.key}" id="dscore-${d.id}">${d.raw}</div>
+        <div class="dim-score-max">/ ${d.maxRaw}</div>
+      </div>
+      <div class="dim-bar">
+        <div class="dim-bar-fill bar-${d.tier.key}" id="dbar-${d.id}" style="width:0%"></div>
+      </div>
+      <div class="dim-tier-label t-${d.tier.key}">${d.tier.label}</div>
+    </div>
+  `).join('');
+
+  return `
+  <div class="dimensions-section">
+    <div class="section-title-bar"><h2>Dimension Scores</h2></div>
+    <div class="dim-grid">${cards}</div>
+  </div>
+  `;
+}
+
+function animateBars(dimScores) {
+  // Animate overall score counter
+  const target = Math.round(dimScores.reduce((s,d)=>s+d.raw,0) / dimScores.reduce((s,d)=>s+d.maxRaw,0) * 100);
+  let cur = 0;
+  const step = Math.max(1, Math.floor(target / 40));
+  const interval = setInterval(() => {
+    cur = Math.min(cur + step, target);
+    const el = document.getElementById('score-counter');
+    if (el) el.textContent = cur;
+    if (cur >= target) clearInterval(interval);
+  }, 25);
+
+  // Animate bars
+  dimScores.forEach(d => {
+    const bar = document.getElementById(`dbar-${d.id}`);
+    if (bar) setTimeout(() => { bar.style.width = (d.pct * 100) + '%'; }, 200);
+  });
+}
+
+function renderRadar(dimScores) {
+  return `
+  <div class="radar-wrap">
+    <div class="section-title-bar" style="width:100%"><h2>Capability Spider Chart</h2></div>
+    <canvas id="radarCanvas" width="500" height="400"></canvas>
+  </div>
+  `;
+}
+
+function drawRadar(dimScores) {
+  const canvas = document.getElementById('radarCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2 + 10;
+  const R = Math.min(W, H) * 0.34;
+  const n = dimScores.length;
+  const labels = dimScores.map(d => d.name.split(' ').slice(0,2).join(' '));
+  const values = dimScores.map(d => d.pct);
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Grid rings
+  for (let r = 1; r <= 5; r++) {
+    ctx.beginPath();
+    for (let i = 0; i <= n; i++) {
+      const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+      const rr = (r / 5) * R;
+      const x = cx + rr * Math.cos(angle);
+      const y = cy + rr * Math.sin(angle);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Ring label
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '9px Outfit';
+    ctx.textAlign = 'center';
+    ctx.fillText(r, cx + 4, cy - (r / 5) * R + 3);
+  }
+
+  // Spokes
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + R * Math.cos(angle), cy + R * Math.sin(angle));
+    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+
+  // Data polygon
+  ctx.beginPath();
+  values.forEach((v, i) => {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const r = v * R;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(14,124,123,0.18)';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(20,169,168,0.8)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // Data points
+  values.forEach((v, i) => {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const r = v * R;
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, 2 * Math.PI);
+    ctx.fillStyle = '#14A9A8';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+
+  // Labels
+  for (let i = 0; i < n; i++) {
+    const angle = (i / n) * 2 * Math.PI - Math.PI / 2;
+    const lx = cx + (R + 36) * Math.cos(angle);
+    const ly = cy + (R + 36) * Math.sin(angle);
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '11px Outfit';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(labels[i], lx, ly);
+  }
+}
+
+// ══════════════════════════════════════════════
+// ROADMAP + BANG-FOR-BUCK
+// ══════════════════════════════════════════════
+function buildRoadmap(dimScores) {
+  const actions = [];
+
+  // Generate context-aware actions per dimension based on score tier
+  dimScores.forEach(d => {
+    const t = d.tier.key;
+    const acts = dimensionActions(d.id, t);
+    acts.forEach(a => actions.push({...a, dimension: d.name, dimIcon: d.icon}));
+  });
+
+  return actions;
+}
+
+function dimensionActions(dimId, tier) {
+  const library = {
+    tools: {
+      reactive: [
+        { name:'Audit current tool landscape & pain points', horizon:'short', effort:'low', impact:'high', roi:85, desc:'Document all planning tools, data flows, and manual workarounds to create a baseline.', category:'tools' },
+        { name:'Implement structured Excel model governance', horizon:'short', effort:'low', impact:'med', roi:60, desc:'Standardize model templates, naming conventions, and a shared folder structure.', category:'tools' },
+        { name:'Evaluate FP&A platform vendors (RFP/demo cycle)', horizon:'med', effort:'med', impact:'high', roi:90, desc:'Run a structured selection process for a dedicated planning platform.', category:'tools' },
+      ],
+      emerging: [
+        { name:'Deploy FP&A platform for core budgeting', horizon:'short', effort:'high', impact:'high', roi:88, desc:'Implement a dedicated FP&A platform to replace Excel-based budgeting.', category:'tools' },
+        { name:'Establish platform governance and admin function', horizon:'short', effort:'low', impact:'med', roi:65, desc:'Define platform ownership, change management, and model documentation standards.', category:'tools' },
+        { name:'Integrate ERP as primary data source', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Automate actuals ingestion from ERP into planning platform.', category:'tools' },
+      ],
+      integrated: [
+        { name:'Expand platform to additional planning modules', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Add workforce, capex, or revenue planning modules to existing platform.', category:'tools' },
+        { name:'Implement self-service analytics layer', horizon:'med', effort:'med', impact:'med', roi:72, desc:'Deploy BI layer enabling business users to access planning data directly.', category:'tools' },
+        { name:'Build Center of Excellence for platform management', horizon:'long', effort:'low', impact:'med', roi:68, desc:'Formalize a COE to drive platform optimization and user enablement.', category:'tools' },
+      ],
+      optimized: [
+        { name:'Architect real-time data integration layer', horizon:'med', effort:'high', impact:'high', roi:85, desc:'Move to event-driven data pipelines for near real-time planning data.', category:'tools' },
+        { name:'Implement unified data model across all planning domains', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Build an enterprise-grade planning data model connecting finance and operations.', category:'tools' },
+      ],
+      leading: [
+        { name:'Explore agentic AI for model maintenance', horizon:'long', effort:'high', impact:'high', roi:78, desc:'Evaluate AI agents that can autonomously update planning models.', category:'tools' },
+      ]
+    },
+    forecast: {
+      reactive: [
+        { name:'Implement quarterly reforecast cadence', horizon:'short', effort:'low', impact:'high', roi:80, desc:'Establish a formal mid-year and Q3 reforecast process with defined templates.', category:'forecast' },
+        { name:'Define a driver-based forecasting model', horizon:'short', effort:'med', impact:'high', roi:85, desc:'Identify 5–10 key business drivers that link operational activity to financial outcomes.', category:'forecast' },
+        { name:'Introduce base/upside/downside scenario framework', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Build a lightweight scenario structure to frame planning discussions with leadership.', category:'forecast' },
+      ],
+      emerging: [
+        { name:'Migrate to rolling 12-month forecast', horizon:'short', effort:'med', impact:'high', roi:87, desc:'Replace static annual budget reforecasts with a continuous rolling horizon.', category:'forecast' },
+        { name:'Formalize forecast accuracy tracking', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Build a monthly actuals vs. forecast variance scorecard by business unit.', category:'forecast' },
+        { name:'Build scenario modeling in planning tool', horizon:'med', effort:'med', impact:'high', roi:83, desc:'Implement dynamic scenario capability within the FP&A platform.', category:'forecast' },
+      ],
+      integrated: [
+        { name:'Implement statistical baseline forecasting', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Apply time-series statistical models to generate data-driven forecast baselines.', category:'forecast' },
+        { name:'Reduce forecast cycle time to <3 days', horizon:'short', effort:'med', impact:'med', roi:72, desc:'Streamline the end-to-end reforecast process using automation and pre-approved assumptions.', category:'forecast' },
+      ],
+      optimized: [
+        { name:'Deploy ML-assisted forecasting models', horizon:'med', effort:'high', impact:'high', roi:86, desc:'Implement machine learning models for revenue, demand, and workforce forecasting.', category:'forecast' },
+        { name:'Build real-time scenario simulation engine', horizon:'long', effort:'high', impact:'high', roi:80, desc:'Create an on-demand scenario engine enabling same-day impact modeling.', category:'forecast' },
+      ],
+      leading: [
+        { name:'Implement continuous autonomous forecast refresh', horizon:'long', effort:'high', impact:'high', roi:75, desc:'Deploy always-on forecasting with automated model recalibration.', category:'forecast' },
+      ]
+    },
+    data: {
+      reactive: [
+        { name:'Conduct data quality audit across planning inputs', horizon:'short', effort:'low', impact:'high', roi:82, desc:'Document data sources, identify gaps, duplicates, and reconciliation issues.', category:'data' },
+        { name:'Define chart of accounts and cost center governance', horizon:'short', effort:'med', impact:'high', roi:80, desc:'Standardize the financial data structure to enable consistent reporting.', category:'data' },
+        { name:'Automate actuals ingestion from ERP', horizon:'med', effort:'med', impact:'high', roi:88, desc:'Eliminate manual data pulls by building automated ERP-to-planning feeds.', category:'data' },
+      ],
+      emerging: [
+        { name:'Implement master data management process', horizon:'short', effort:'med', impact:'high', roi:83, desc:'Establish a governed MDM process for hierarchies, cost centers, and entities.', category:'data' },
+        { name:'Connect HR system for headcount data', horizon:'short', effort:'med', impact:'high', roi:80, desc:'Automate headcount and compensation data flows from HRIS to planning tool.', category:'data' },
+        { name:'Build data dictionary for planning metrics', horizon:'short', effort:'low', impact:'med', roi:65, desc:'Define and document all planning metrics, KPIs, and calculation logic.', category:'data' },
+      ],
+      integrated: [
+        { name:'Implement CRM–finance integration for revenue planning', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Connect CRM pipeline data to revenue forecast models.', category:'data' },
+        { name:'Deploy automated data quality monitoring', horizon:'med', effort:'med', impact:'med', roi:75, desc:'Build alerts and dashboards to proactively detect data quality issues.', category:'data' },
+      ],
+      optimized: [
+        { name:'Build enterprise data lake for planning analytics', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Consolidate all planning and operational data into a governed data lake.', category:'data' },
+        { name:'Implement automated data lineage tracking', horizon:'med', effort:'med', impact:'med', roi:70, desc:'Deploy data lineage tooling to trace every number back to its source.', category:'data' },
+      ],
+      leading: [
+        { name:'Explore real-time operational data streaming', horizon:'long', effort:'high', impact:'high', roi:76, desc:'Implement event-driven data pipelines for real-time operational planning inputs.', category:'data' },
+      ]
+    },
+    reporting: {
+      reactive: [
+        { name:'Standardize management reporting templates', horizon:'short', effort:'low', impact:'high', roi:82, desc:'Create consistent, branded templates for monthly management reporting.', category:'reporting' },
+        { name:'Automate the monthly close reporting package', horizon:'short', effort:'med', impact:'high', roi:85, desc:'Build automated data refresh for the monthly P&L and KPI pack.', category:'reporting' },
+        { name:'Deploy a basic BI dashboard (Power BI/Tableau)', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Implement a self-service BI layer for financial and operational KPIs.', category:'reporting' },
+      ],
+      emerging: [
+        { name:'Establish self-service reporting for business partners', horizon:'short', effort:'med', impact:'high', roi:83, desc:'Enable business leaders to access their own P&L and KPI data directly.', category:'reporting' },
+        { name:'Introduce variance narrative framework', horizon:'short', effort:'low', impact:'med', roi:68, desc:'Standardize how variance commentary is structured and communicated.', category:'reporting' },
+        { name:'Target virtual close (≤5 day close)', horizon:'med', effort:'high', impact:'high', roi:86, desc:'Reengineer the close process to accelerate reporting timelines.', category:'reporting' },
+      ],
+      integrated: [
+        { name:'Build integrated financial and operational dashboards', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Create dashboards linking financial outcomes to operational drivers.', category:'reporting' },
+        { name:'Implement anomaly detection in reporting', horizon:'med', effort:'med', impact:'med', roi:74, desc:'Use statistical methods to automatically flag unusual variances.', category:'reporting' },
+      ],
+      optimized: [
+        { name:'Deploy AI-assisted narrative generation', horizon:'long', effort:'high', impact:'high', roi:78, desc:'Use NLG technology to automate financial commentary and board reporting.', category:'reporting' },
+        { name:'Build predictive KPI dashboards', horizon:'med', effort:'high', impact:'high', roi:82, desc:'Add forward-looking forecasted KPIs alongside historical actuals in dashboards.', category:'reporting' },
+      ],
+      leading: [
+        { name:'Implement executive decision intelligence platform', horizon:'long', effort:'high', impact:'high', roi:77, desc:'Build an AI-powered decision support layer integrated with board reporting.', category:'reporting' },
+      ]
+    },
+    xpna: {
+      reactive: [
+        { name:'Launch business partnering programme', horizon:'short', effort:'low', impact:'high', roi:84, desc:'Assign FP&A business partners to key business units with regular cadence.', category:'xpna' },
+        { name:'Integrate HR headcount data into financial model', horizon:'short', effort:'med', impact:'high', roi:83, desc:'Connect workforce data to financials for fully loaded cost visibility.', category:'xpna' },
+        { name:'Establish cross-functional planning governance', horizon:'med', effort:'low', impact:'high', roi:80, desc:'Create a planning steering committee with Finance, HR, and Sales representation.', category:'xpna' },
+      ],
+      emerging: [
+        { name:'Integrate Sales pipeline into revenue forecast', horizon:'short', effort:'med', impact:'high', roi:86, desc:'Connect CRM data to the revenue forecast for a demand-driven planning model.', category:'xpna' },
+        { name:'Build integrated workforce and cost plan', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Combine headcount plan with compensation, benefits, and productivity assumptions.', category:'xpna' },
+        { name:'Roll out planning platform access to business units', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Enable direct input and visibility for key operational leaders.', category:'xpna' },
+      ],
+      integrated: [
+        { name:'Implement full xP&A model (Finance+HR+Sales+Ops)', horizon:'med', effort:'high', impact:'high', roi:88, desc:'Build a fully integrated cross-functional planning model across all major domains.', category:'xpna' },
+        { name:'Develop Finance as Strategic Advisor programme', horizon:'long', effort:'med', impact:'high', roi:80, desc:'Upskill finance team and redefine role from reporters to strategic business advisors.', category:'xpna' },
+      ],
+      optimized: [
+        { name:'Embed real-time operational–financial linkage', horizon:'long', effort:'high', impact:'high', roi:85, desc:'Build live connections between operational metrics and financial forecast updates.', category:'xpna' },
+        { name:'Implement supply chain / operational planning integration', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Extend xP&A to include supply chain and operational planning modules.', category:'xpna' },
+      ],
+      leading: [
+        { name:'Achieve fully converged enterprise planning', horizon:'long', effort:'high', impact:'high', roi:78, desc:'Integrate strategic, financial, and operational plans into a single platform.', category:'xpna' },
+      ]
+    },
+    ai: {
+      reactive: [
+        { name:'Conduct AI readiness assessment', horizon:'short', effort:'low', impact:'med', roi:72, desc:'Evaluate data quality, team skills, and use case pipeline for AI adoption.', category:'ai' },
+        { name:'Automate repetitive data tasks (RPA/Python)', horizon:'short', effort:'med', impact:'high', roi:84, desc:'Eliminate manual data extraction and formatting tasks with basic automation.', category:'ai' },
+        { name:'Pilot Excel / Power BI AI features (Copilot)', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Explore AI features already embedded in existing Microsoft tools.', category:'ai' },
+      ],
+      emerging: [
+        { name:'Implement statistical forecasting models', horizon:'med', effort:'med', impact:'high', roi:83, desc:'Deploy time-series statistical models as a forecasting baseline.', category:'ai' },
+        { name:'Build automated reporting pipelines', horizon:'short', effort:'med', impact:'high', roi:82, desc:'Automate end-to-end report generation to eliminate manual compilation.', category:'ai' },
+        { name:'Define AI use case roadmap for FP&A', horizon:'short', effort:'low', impact:'med', roi:68, desc:'Identify, prioritize, and document AI use cases with expected ROI.', category:'ai' },
+      ],
+      integrated: [
+        { name:'Deploy ML-assisted revenue forecasting', horizon:'med', effort:'high', impact:'high', roi:86, desc:'Implement machine learning models for demand and revenue prediction.', category:'ai' },
+        { name:'Build anomaly detection for financial data', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Deploy statistical anomaly detection to flag unusual movements automatically.', category:'ai' },
+        { name:'Upskill team in data science and AI interpretation', horizon:'med', effort:'med', impact:'med', roi:74, desc:'Invest in training programmes to build AI literacy across the FP&A team.', category:'ai' },
+      ],
+      optimized: [
+        { name:'Implement AI-assisted scenario planning', horizon:'med', effort:'high', impact:'high', roi:85, desc:'Use AI to generate and stress-test planning scenarios automatically.', category:'ai' },
+        { name:'Deploy NLG for automated reporting narrative', horizon:'long', effort:'high', impact:'high', roi:79, desc:'Use natural language generation to automate board and management commentary.', category:'ai' },
+      ],
+      leading: [
+        { name:'Deploy agentic AI for autonomous FP&A tasks', horizon:'long', effort:'high', impact:'high', roi:76, desc:'Implement AI agents capable of executing planning tasks autonomously.', category:'ai' },
+      ]
+    },
+    process: {
+      reactive: [
+        { name:'Document all core FP&A processes', horizon:'short', effort:'low', impact:'high', roi:82, desc:'Create process maps for budgeting, forecasting, close, and reporting.', category:'process' },
+        { name:'Publish a formal planning calendar', horizon:'short', effort:'low', impact:'high', roi:85, desc:'Define and communicate planning milestones to all stakeholders.', category:'process' },
+        { name:'Implement planning assumptions governance', horizon:'short', effort:'low', impact:'high', roi:80, desc:'Establish a formal process for developing, reviewing, and approving planning assumptions.', category:'process' },
+      ],
+      emerging: [
+        { name:'Implement workflow and approvals in planning tool', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Replace email-based approvals with platform-managed workflows.', category:'process' },
+        { name:'Establish forecast accuracy KPI programme', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Define and track forecast accuracy as a formal performance metric.', category:'process' },
+        { name:'Formalize version control and audit trail', horizon:'short', effort:'low', impact:'med', roi:68, desc:'Implement platform-managed versioning with clear naming conventions.', category:'process' },
+      ],
+      integrated: [
+        { name:'Benchmark planning cycle times vs. industry', horizon:'short', effort:'low', impact:'med', roi:65, desc:'Compare your planning KPIs to APQC and AFP benchmarks.', category:'process' },
+        { name:'Build a continuous improvement programme for FP&A', horizon:'long', effort:'med', impact:'high', roi:78, desc:'Create a formal FP&A improvement backlog reviewed quarterly.', category:'process' },
+      ],
+      optimized: [
+        { name:'Achieve agile planning process design', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Redesign planning as an iterative, sprint-based process with shorter cycles.', category:'process' },
+        { name:'Implement SLA-based FP&A service model', horizon:'long', effort:'med', impact:'med', roi:72, desc:'Define formal service levels for all FP&A deliverables.', category:'process' },
+      ],
+      leading: [
+        { name:'Move to event-driven, always-on planning', horizon:'long', effort:'high', impact:'high', roi:76, desc:'Eliminate discrete planning cycles in favor of continuous event-triggered updates.', category:'process' },
+      ]
+    },
+    team: {
+      reactive: [
+        { name:'Define FP&A team competency framework', horizon:'short', effort:'low', impact:'high', roi:80, desc:'Map required skills, behaviors, and career levels for the FP&A function.', category:'team' },
+        { name:'Hire or develop a data-savvy FP&A analyst', horizon:'short', effort:'med', impact:'high', roi:82, desc:'Bring in someone who can bridge finance and data skills.', category:'team' },
+        { name:'Launch FP&A training programme', horizon:'short', effort:'med', impact:'high', roi:84, desc:'Invest in structured training covering modeling, tools, and business partnering.', category:'team' },
+      ],
+      emerging: [
+        { name:'Restructure FP&A around business partnership model', horizon:'med', effort:'med', impact:'high', roi:83, desc:'Create dedicated business partner roles aligned to key business units.', category:'team' },
+        { name:'Automate to free capacity for value-added work', horizon:'med', effort:'med', impact:'high', roi:85, desc:'Target 20% reduction in time spent on data gathering through automation.', category:'team' },
+        { name:'Implement FP&A capacity planning for peak cycles', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Build a resource plan for the annual budget and quarterly forecast peaks.', category:'team' },
+      ],
+      integrated: [
+        { name:'Build analytics specialist capability in FP&A', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Develop or hire for data analytics and visualization skills within the team.', category:'team' },
+        { name:'Implement FP&A talent development roadmap', horizon:'long', effort:'med', impact:'high', roi:76, desc:'Define long-term career paths and development investments for the FP&A team.', category:'team' },
+      ],
+      optimized: [
+        { name:'Build data science capability in FP&A', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Develop or hire for Python, ML, and advanced analytics skills.', category:'team' },
+        { name:'Establish FP&A Center of Excellence', horizon:'long', effort:'med', impact:'high', roi:78, desc:'Create a centralized COE to drive best practices, tools, and capability building.', category:'team' },
+      ],
+      leading: [
+        { name:'Design AI-augmented FP&A operating model', horizon:'long', effort:'high', impact:'high', roi:75, desc:'Redesign FP&A roles and processes around an AI-first operating model.', category:'team' },
+      ]
+    }
+  };
+
+  return (library[dimId] && library[dimId][tier]) ? library[dimId][tier] : [];
+}
+
+function renderBFBChart(roadmap) {
+  return `
+  <div class="bfb-wrap">
+    <div class="section-title-bar"><h2>Value vs. Effort Matrix</h2></div>
+    <p style="font-size:13px; color:var(--silver); margin-bottom:4px;">Each bubble represents a recommended action. Position reflects relative effort (x-axis) and expected return (y-axis). Size reflects HGS confidence in the ROI estimate.</p>
+    <div class="bfb-canvas-wrap">
+      <canvas id="bfbCanvas"></canvas>
+    </div>
+    <div class="bfb-legend">
+      <div class="bfb-legend-item"><div class="bfb-dot" style="background:var(--ok)"></div> Short-term (0–6 months)</div>
+      <div class="bfb-legend-item"><div class="bfb-dot" style="background:var(--gold-light)"></div> Mid-term (6–18 months)</div>
+      <div class="bfb-legend-item"><div class="bfb-dot" style="background:var(--great)"></div> Long-term (18+ months)</div>
+    </div>
+  </div>
+  `;
+}
+
+function drawBFBChart(roadmap) {
+  const canvas = document.getElementById('bfbCanvas');
+  if (!canvas) return;
+  const W = canvas.offsetWidth, H = canvas.offsetHeight;
+  canvas.width = W * (window.devicePixelRatio || 1);
+  canvas.height = H * (window.devicePixelRatio || 1);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+
+  const pad = { l: 56, r: 28, t: 24, b: 48 };
+  const cw = W - pad.l - pad.r, ch = H - pad.t - pad.b;
+
+  // Background quadrants
+  ctx.fillStyle = 'rgba(59,171,122,0.04)';
+  ctx.fillRect(pad.l, pad.t, cw / 2, ch / 2);
+  ctx.fillStyle = 'rgba(58,139,232,0.04)';
+  ctx.fillRect(pad.l + cw / 2, pad.t, cw / 2, ch / 2);
+  ctx.fillStyle = 'rgba(201,146,43,0.04)';
+  ctx.fillRect(pad.l, pad.t + ch / 2, cw / 2, ch / 2);
+  ctx.fillStyle = 'rgba(224,85,85,0.04)';
+  ctx.fillRect(pad.l + cw / 2, pad.t + ch / 2, cw / 2, ch / 2);
+
+  // Quadrant labels
+  ctx.fillStyle = 'rgba(255,255,255,0.12)';
+  ctx.font = '10px Outfit';
+  ctx.textAlign = 'center';
+  ctx.fillText('Quick Wins', pad.l + cw * 0.25, pad.t + 16);
+  ctx.fillText('Strategic Bets', pad.l + cw * 0.75, pad.t + 16);
+  ctx.fillText('Fill-ins', pad.l + cw * 0.25, pad.t + ch - 8);
+  ctx.fillText('Deprioritize', pad.l + cw * 0.75, pad.t + ch - 8);
+
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.lineWidth = 1;
+  // X axis
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t + ch); ctx.lineTo(pad.l + cw, pad.t + ch); ctx.stroke();
+  // Y axis
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + ch); ctx.stroke();
+  // Midlines
+  ctx.setLineDash([4, 4]);
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.beginPath(); ctx.moveTo(pad.l + cw/2, pad.t); ctx.lineTo(pad.l + cw/2, pad.t + ch); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(pad.l, pad.t + ch/2); ctx.lineTo(pad.l + cw, pad.t + ch/2); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Axis labels
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '10px Outfit';
+  ctx.textAlign = 'center';
+  ctx.fillText('← Low Effort', pad.l + cw * 0.2, pad.t + ch + 20);
+  ctx.fillText('High Effort →', pad.l + cw * 0.8, pad.t + ch + 20);
+  ctx.save();
+  ctx.translate(14, pad.t + ch / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center';
+  ctx.fillText('← Low Return     High Return →', 0, 0);
+  ctx.restore();
+
+  // Effort → x position
+  const effortX = { low: 0.15, med: 0.5, high: 0.82 };
+  const colorMap = { short: '#3BAB7A', med: '#E8B24A', long: '#3A8BE8' };
+
+  // Deduplicate by name to avoid overlap
+  const placed = [];
+  roadmap.forEach((action, idx) => {
+    const ex = effortX[action.effort] || 0.5;
+    const ey = 1 - (action.roi / 100);
+    let bx = pad.l + ex * cw;
+    let by = pad.t + ey * ch;
+
+    // Jitter to avoid overlap
+    placed.forEach(p => {
+      const dx = bx - p.x, dy = by - p.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 22) { bx += (dx / dist || 0.5) * (22 - dist); by += (dy / dist || 0.5) * (22 - dist); }
+    });
+    placed.push({x: bx, y: by});
+
+    const r = 7 + (action.roi - 60) / 8;
+    const col = colorMap[action.horizon] || '#6B8099';
+
+    ctx.beginPath();
+    ctx.arc(bx, by, r, 0, 2 * Math.PI);
+    ctx.fillStyle = col + '33';
+    ctx.fill();
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  });
+}
+
+function renderRoadmap(roadmap) {
+  const short = roadmap.filter(a => a.horizon === 'short');
+  const med   = roadmap.filter(a => a.horizon === 'med');
+  const long  = roadmap.filter(a => a.horizon === 'long');
+
+  function tableRows(actions) {
+    return actions.map(a => `
+      <tr>
+        <td>
+          <div style="font-weight:500; margin-bottom:3px;">${a.name}</div>
+          <div style="font-size:11px; color:var(--silver);">${a.desc}</div>
+        </td>
+        <td style="white-space:nowrap;">${a.dimIcon} <span style="font-size:11px; color:var(--silver);">${a.dimension.split(' ').slice(0,2).join(' ')}</span></td>
+        <td><span class="impact-badge impact-${a.impact}">${a.impact.toUpperCase()}</span></td>
+        <td><span class="cost-badge cost-${a.effort}">${a.effort.toUpperCase()}</span></td>
+        <td style="font-weight:600; color:var(--teal-light);">${a.roi}%</td>
+      </tr>
+    `).join('');
+  }
+
+  const tableHeader = `
+    <table class="roadmap-table">
+      <thead><tr>
+        <th>Action</th><th>Dimension</th><th>Impact</th><th>Effort</th><th>Est. ROI</th>
+      </tr></thead>
+      <tbody>
+  `;
+
+  return `
+  <div class="roadmap-section">
+    <div class="section-title-bar"><h2>Transformation Roadmap</h2></div>
+    <p style="font-size:13px; color:var(--silver); margin-bottom:20px;">Prioritized actions across your transformation journey, organized by time horizon.</p>
+    <div class="roadmap-tabs">
+      <div class="roadmap-tab active" onclick="switchRoadmap('short', this)">⚡ Short-term <span style="opacity:0.6">(0–6 months · ${short.length} actions)</span></div>
+      <div class="roadmap-tab" onclick="switchRoadmap('med', this)">🔧 Mid-term <span style="opacity:0.6">(6–18 months · ${med.length} actions)</span></div>
+      <div class="roadmap-tab" onclick="switchRoadmap('long', this)">🚀 Long-term <span style="opacity:0.6">(18+ months · ${long.length} actions)</span></div>
+    </div>
+    <div id="roadmap-short" class="roadmap-pane active">${tableHeader}${tableRows(short)}</tbody></table></div>
+    <div id="roadmap-med"   class="roadmap-pane">${tableHeader}${tableRows(med)}</tbody></table></div>
+    <div id="roadmap-long"  class="roadmap-pane">${tableHeader}${tableRows(long)}</tbody></table></div>
+  </div>
+  `;
+}
+
+function switchRoadmap(horizon, el) {
+  document.querySelectorAll('.roadmap-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.roadmap-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`roadmap-${horizon}`).classList.add('active');
+  el.classList.add('active');
+}
+
+function renderFindings(dimScores) {
+  const cards = dimScores.map(d => {
+    const recs = dimensionActions(d.id, d.tier.key).slice(0, 3);
+    const finding = dimensionFinding(d.id, d.tier.key);
+    return `
+    <div class="finding-card">
+      <div class="finding-header">
+        <div class="finding-icon">${d.icon}</div>
+        <div class="finding-name">${d.name}</div>
+        <div class="finding-score-pill pill-${d.tier.key}">${d.tier.label}</div>
+      </div>
+      <div class="finding-text">${finding}</div>
+      <div class="finding-recs">
+        ${recs.map(r => `<div class="finding-rec">${r.name}</div>`).join('')}
+      </div>
+    </div>
+    `;
+  }).join('');
+
+  return `
+  <div>
+    <div class="section-title-bar"><h2>Dimension Findings</h2></div>
+    <div class="findings-grid">${cards}</div>
+  </div>
+  `;
+}
+
+function dimensionFinding(dimId, tier) {
+  const findings = {
+    tools: {
+      reactive: 'Planning is primarily Excel-driven with limited integration. Version control, manual data reconciliation, and limited scalability are likely creating significant inefficiencies.',
+      emerging: 'Some structured tools are in place but integration gaps remain. Moving to a dedicated platform will unlock step-change improvements in speed and accuracy.',
+      integrated: 'A planning platform is deployed but may not be fully leveraged. Focus on expanding use cases and improving data integration depth.',
+      optimized: 'Strong technology foundation in place. Investment in advanced integration and real-time data architecture will unlock the next level of capability.',
+      leading: 'World-class technology maturity. Focus on AI augmentation and continuous platform optimization to sustain advantage.'
+    },
+    forecast: {
+      reactive: 'Forecasting is largely static and backward-looking. The absence of rolling forecasts and scenario planning limits agility in a dynamic business environment.',
+      emerging: 'Forecasting cadence is improving but methodology remains largely manual. Introducing rolling forecasts and driver-based models will significantly improve accuracy and relevance.',
+      integrated: 'Solid forecasting framework in place. Statistical and driver-based approaches can further improve accuracy and reduce cycle time.',
+      optimized: 'Advanced forecasting capabilities with strong accuracy. ML and AI integration is the logical next step to achieve continuous forecasting.',
+      leading: 'Best-in-class forecasting with AI-assisted models and continuous updates. Focus on further automation and scenario velocity.'
+    },
+    data: {
+      reactive: 'Data quality and integration are significant barriers. Manual data processes consume capacity and introduce errors that undermine planning credibility.',
+      emerging: 'Data governance is forming but integration gaps remain. Automating key data flows and formalizing MDM will deliver rapid improvements.',
+      integrated: 'Good data foundations with most key sources integrated. Extending to operational data sources and improving lineage will unlock advanced analytics.',
+      optimized: 'Strong data capabilities supporting advanced analytics. Building an enterprise data lake and real-time pipelines will complete the foundation for AI.',
+      leading: 'Exceptional data maturity. Real-time streaming and AI-ready data architecture are the frontier opportunities.'
+    },
+    reporting: {
+      reactive: 'Reporting is heavily manual and slow. Stakeholders lack timely access to financial data, reducing the ability to make informed decisions quickly.',
+      emerging: 'Reporting is becoming more structured but significant manual effort remains. Self-service dashboards and close process improvement will drive the biggest gains.',
+      integrated: 'Strong reporting capability with good stakeholder access. Predictive reporting and analytics maturity are the next frontier.',
+      optimized: 'Advanced reporting with real-time dashboards. AI-assisted narrative and predictive KPIs will complete the capability set.',
+      leading: 'Exceptional reporting maturity with real-time insights. Sustaining through AI integration and continuous improvement.'
+    },
+    xpna: {
+      reactive: 'Planning is largely a finance function with limited cross-functional collaboration. This creates misalignment between financial and operational plans.',
+      emerging: 'Collaboration is expanding beyond finance but key operational data sources are not yet integrated. xP&A implementation will drive significant value.',
+      integrated: 'Good cross-functional engagement with key business units participating. Deepening operational integration and business partnering effectiveness are priorities.',
+      optimized: 'Strong xP&A model with wide cross-functional participation. Fully converged planning with real-time operational linkage is within reach.',
+      leading: 'World-class xP&A with fully integrated planning across all functions. Focus on sustaining governance and expanding AI-driven collaboration.'
+    },
+    ai: {
+      reactive: 'AI and automation are not yet part of the FP&A toolkit. Significant time savings and accuracy improvements are available through basic automation.',
+      emerging: 'Basic automation is in place. Formalizing an AI roadmap and investing in data readiness will accelerate the journey to intelligent FP&A.',
+      integrated: 'AI adoption is underway with statistical forecasting and some automation. Deploying ML models and building team AI literacy are the next key investments.',
+      optimized: 'Strong AI capabilities with ML-assisted forecasting and automation. Deploying advanced AI use cases and autonomous agents is the next frontier.',
+      leading: 'Leading-edge AI capabilities. Focus on expanding AI use cases and building robust governance for autonomous FP&A processes.'
+    },
+    process: {
+      reactive: 'Planning processes are informal and heavily dependent on individual knowledge. Documenting and standardizing processes is the foundation for all other improvements.',
+      emerging: 'Process structure is forming but governance is inconsistent. Formalizing workflows and implementing platform-managed approvals will drive reliability.',
+      integrated: 'Well-governed processes with clear accountability. Benchmarking and continuous improvement programmes will sustain advancement.',
+      optimized: 'High process maturity with strong governance. Agile process design and event-driven planning are the strategic opportunities.',
+      leading: 'Exceptional process maturity with industry-leading governance. Continuous optimization and AI-driven process automation are the frontier.'
+    },
+    team: {
+      reactive: 'The FP&A team is generalist with limited specialist capability. Significant time is spent on data work rather than analysis, limiting strategic value delivery.',
+      emerging: 'Specialization is developing. Investing in business partnering skills, tools training, and automation will shift the capacity mix toward value-added work.',
+      integrated: 'Capable team with growing analytical skills. Building advanced data and analytics capabilities will unlock the next level of FP&A impact.',
+      optimized: 'Strong team with diverse skills. Data science capability and a formal COE will position FP&A as a true strategic function.',
+      leading: 'World-class FP&A team. Designing an AI-augmented operating model and sustaining the talent advantage are the key priorities.'
+    }
+  };
+  return (findings[dimId] && findings[dimId][tier]) || 'Assessment findings are being generated based on your responses.';
+}
+
+function renderResultsCTA() {
+  return `
+  <div class="results-cta">
+    <h3>Ready to Accelerate Your Transformation?</h3>
+    <p>HGS Advisory specializes in FP&A transformation — from quick-win implementations to full enterprise platform deployments. Let's build your roadmap together.</p>
+    <div class="cta-btns">
+      <button class="btn-primary" onclick="alert('Connect with HGS Advisory — feature coming soon.')">
+        Schedule a Strategy Session
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      </button>
+      <button class="btn-gold" onclick="downloadPDF()">
+        Download PDF Report
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      </button>
+      <button class="btn-ghost" onclick="retake()">Retake Assessment</button>
+    </div>
+  </div>
+  `;
 }
 
 function retake() {
-  answers = {};
-  currentQ = 0;
-  document.getElementById('input-name').value = '';
-  document.getElementById('input-role').value = '';
-  document.getElementById('input-org').value = '';
+  answers = {}; currentSection = 0;
+  ['f-name','f-role','f-org','f-advisor'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-industry').value = '';
+  document.getElementById('f-size').value = '';
   document.getElementById('btn-start').disabled = true;
   showScreen('screen-intro');
+}
+
+// ══════════════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════════════
+function downloadPDF() {
+  const name     = document.getElementById('f-name').value.trim();
+  const role     = document.getElementById('f-role').value.trim();
+  const org      = document.getElementById('f-org').value.trim();
+  const date     = document.getElementById('f-date').value;
+  const advisor  = document.getElementById('f-advisor').value.trim();
+  const industry = document.getElementById('f-industry').value || '—';
+  const size     = document.getElementById('f-size').value || '—';
+  const formatted = date ? new Date(date).toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}) : '—';
+
+  const dimScores = SECTIONS.map((sec, si) => {
+    const sa = answers[si] || {};
+    const raw = Object.values(sa).reduce((s,v) => s+(v+1), 0);
+    const maxRaw = sec.questions.length * 5;
+    const pct = raw / maxRaw;
+    return { ...sec, raw, maxRaw, pct, tier: scoreTier(pct) };
+  });
+  const totalRaw   = dimScores.reduce((s,d) => s+d.raw, 0);
+  const totalMax   = dimScores.reduce((s,d) => s+d.maxRaw, 0);
+  const overallPct = totalRaw / totalMax;
+  const overallTier = scoreTier(overallPct);
+  const overallScore = Math.round(overallPct * 100);
+  const roadmapAll  = buildRoadmap(dimScores);
+
+  const tierHex = {
+    reactive:'#E05555', emerging:'#E8943A',
+    integrated:'#3BAB7A', optimized:'#3A8BE8', leading:'#8A5CF6'
+  };
+  const tc = tierHex[overallTier.key];
+
+  // ── Build print HTML ──
+  function scoreBar(pct, color) {
+    return `<div style="height:6px;background:#1e3448;border-radius:4px;overflow:hidden;margin-top:4px;">
+      <div style="height:100%;width:${Math.round(pct*100)}%;background:${color};border-radius:4px;"></div></div>`;
+  }
+
+  function impactBadge(v) {
+    const map = {high:['#3BAB7A','#0d2a1e'],med:['#E8943A','#2a1a0a'],low:['#6B8099','#1a2535']};
+    const [fg,bg] = map[v]||map.low;
+    return `<span style="background:${bg};color:${fg};border:1px solid ${fg};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em">${v.toUpperCase()}</span>`;
+  }
+  function effortBadge(v) {
+    const map = {low:['#3BAB7A','#0d2a1e'],med:['#E8943A','#2a1a0a'],high:['#E05555','#2a0d0d']};
+    const [fg,bg] = map[v]||map.low;
+    return `<span style="background:${bg};color:${fg};border:1px solid ${fg};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em">${v.toUpperCase()}</span>`;
+  }
+
+  function sectionHeader(title, subtitle='') {
+    return `<div style="margin:36px 0 18px;border-bottom:1px solid #1e3448;padding-bottom:10px;">
+      <h2 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 4px;">${title}</h2>
+      ${subtitle?`<p style="font-size:12px;color:#6B8099;margin:0;">${subtitle}</p>`:''}
+    </div>`;
+  }
+
+  function roadmapTable(actions, accentColor) {
+    if (!actions.length) return '<p style="color:#6B8099;font-size:12px;">No actions in this horizon.</p>';
+    return `<table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="border-bottom:1px solid #1e3448;">
+        <th style="text-align:left;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Action</th>
+        <th style="text-align:left;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Dimension</th>
+        <th style="text-align:center;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Impact</th>
+        <th style="text-align:center;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Effort</th>
+        <th style="text-align:right;padding:8px 10px;color:#6B8099;font-weight:600;font-size:10px;letter-spacing:.1em;text-transform:uppercase;">Est. ROI</th>
+      </tr></thead>
+      <tbody>
+      ${actions.map((a,i) => `
+        <tr style="background:${i%2===0?'#0f1f30':'#0b1929'};border-bottom:1px solid #131e2b;">
+          <td style="padding:10px;color:#fff;vertical-align:top;">
+            <div style="font-weight:600;margin-bottom:3px;">${a.name}</div>
+            <div style="color:#6B8099;font-size:11px;line-height:1.4;">${a.desc}</div>
+          </td>
+          <td style="padding:10px;color:#8a9bb0;font-size:11px;vertical-align:top;white-space:nowrap;">${a.dimIcon} ${a.dimension.split(' ').slice(0,2).join(' ')}</td>
+          <td style="padding:10px;text-align:center;vertical-align:top;">${impactBadge(a.impact)}</td>
+          <td style="padding:10px;text-align:center;vertical-align:top;">${effortBadge(a.effort)}</td>
+          <td style="padding:10px;text-align:right;font-weight:700;color:${accentColor};vertical-align:top;">${a.roi}%</td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  const shortActions = roadmapAll.filter(a => a.horizon === 'short');
+  const medActions   = roadmapAll.filter(a => a.horizon === 'med');
+  const longActions  = roadmapAll.filter(a => a.horizon === 'long');
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>HGS FP&A Maturity Report — ${org}</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Outfit',Arial,sans-serif; background:#0D1B2A; color:#fff; font-size:13px; line-height:1.5; }
+  .page { max-width:800px; margin:0 auto; padding:48px 40px; }
+  @media print {
+    @page { size:A4; margin:15mm 15mm 20mm 15mm; }
+    body { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .no-break { page-break-inside:avoid; }
+    .page-break { page-break-before:always; }
+    .page { padding:0; max-width:100%; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- COVER -->
+  <div class="no-break" style="padding:40px 0 32px; border-bottom:1px solid #1e3448;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#6B8099;margin-bottom:12px;">HGS Advisory · FP&amp;A Maturity Deep-Dive</div>
+        <h1 style="font-size:36px;font-weight:700;color:#fff;line-height:1.1;margin-bottom:6px;">FP&amp;A Maturity<br><span style="color:#14A9A8;">Deep-Dive Report</span></h1>
+        <p style="font-size:13px;color:#6B8099;margin-top:12px;">Prepared for: <strong style="color:#fff;">${name}</strong> &nbsp;·&nbsp; ${role} &nbsp;·&nbsp; ${org}</p>
+      </div>
+      <div style="text-align:center;background:#0f1f30;border:1px solid #1e3448;border-radius:16px;padding:24px 28px;min-width:140px;flex-shrink:0;">
+        <div style="font-size:52px;font-weight:700;color:${tc};line-height:1;">${overallScore}</div>
+        <div style="font-size:12px;color:#6B8099;">/100</div>
+        <div style="margin-top:8px;padding:4px 12px;background:${tc}22;border:1px solid ${tc}55;border-radius:20px;display:inline-block;font-size:10px;font-weight:700;color:${tc};letter-spacing:.08em;text-transform:uppercase;">${overallTier.label}</div>
+        <div style="font-size:10px;color:#6B8099;margin-top:6px;">Tier ${overallTier.num} of 5</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-top:28px;">
+      ${[['Industry',industry],['Company Size',size],['Assessment Date',formatted],['HGS Advisor',advisor||'—']].map(([k,v])=>`
+        <div style="background:#0f1f30;border:1px solid #1e3448;border-radius:8px;padding:12px 14px;">
+          <div style="font-size:10px;color:#6B8099;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;">${k}</div>
+          <div style="font-size:12px;font-weight:600;color:#fff;">${v}</div>
+        </div>`).join('')}
+    </div>
+
+    <div style="margin-top:20px;padding:16px 20px;background:#0f1f30;border:1px solid ${tc}33;border-radius:10px;">
+      <span style="color:${tc};font-weight:600;">Overall Assessment: </span>
+      <span style="color:#ccc;">${tierTagline(overallTier.key)}</span>
+    </div>
+  </div>
+
+  <!-- DIMENSION SCORES -->
+  ${sectionHeader('Capability Dimension Scores', 'Maturity assessed across 8 core FP&A capability areas')}
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    ${dimScores.map(d => {
+      const dc = tierHex[d.tier.key];
+      return `<div class="no-break" style="background:#0f1f30;border:1px solid #1e3448;border-radius:10px;padding:16px 18px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+          <span style="font-size:18px;">${d.icon}</span>
+          <span style="font-size:12px;font-weight:600;color:#8a9bb0;">${d.name}</span>
+          <span style="margin-left:auto;padding:2px 10px;background:${dc}22;border:1px solid ${dc}55;border-radius:20px;font-size:10px;font-weight:700;color:${dc};letter-spacing:.06em;">${d.tier.label}</span>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:4px;margin-bottom:6px;">
+          <span style="font-size:26px;font-weight:700;color:${dc};">${d.raw}</span>
+          <span style="font-size:13px;color:#6B8099;">/ ${d.maxRaw}</span>
+        </div>
+        ${scoreBar(d.pct, dc)}
+      </div>`;
+    }).join('')}
+  </div>
+
+  <!-- FINDINGS PER DIMENSION -->
+  <div class="page-break"></div>
+  ${sectionHeader('Dimension Findings & Recommendations')}
+  ${dimScores.map(d => {
+    const dc = tierHex[d.tier.key];
+    const recs = dimensionActions(d.id, d.tier.key).slice(0,3);
+    const finding = dimensionFinding(d.id, d.tier.key);
+    return `<div class="no-break" style="background:#0f1f30;border:1px solid #1e3448;border-left:3px solid ${dc};border-radius:10px;padding:18px 20px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:20px;">${d.icon}</span>
+        <strong style="font-size:14px;">${d.name}</strong>
+        <span style="padding:2px 10px;background:${dc}22;border:1px solid ${dc}55;border-radius:20px;font-size:10px;font-weight:700;color:${dc};">${d.tier.label} — ${d.raw}/${d.maxRaw}</span>
+      </div>
+      <p style="color:#8a9bb0;font-size:12px;line-height:1.55;margin-bottom:12px;">${finding}</p>
+      <div style="border-top:1px solid #1e3448;padding-top:10px;">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#6B8099;margin-bottom:8px;">Top Recommendations</div>
+        ${recs.map(r=>`<div style="display:flex;gap:8px;margin-bottom:6px;font-size:12px;color:#ccc;">
+          <span style="color:#14A9A8;font-weight:700;flex-shrink:0;">›</span>${r.name}
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('')}
+
+  <!-- ROADMAP: SHORT -->
+  <div class="page-break"></div>
+  ${sectionHeader('Transformation Roadmap', 'Prioritized actions organized by time horizon')}
+  <div style="padding:14px 18px;background:#0d2a1e;border:1px solid #3BAB7A44;border-radius:10px;margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:700;color:#3BAB7A;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">⚡ Short-term Actions &nbsp;·&nbsp; 0–6 Months &nbsp;·&nbsp; ${shortActions.length} Actions</div>
+    <div style="font-size:11px;color:#6B8099;">Foundation building, quick wins, and immediate efficiency gains.</div>
+  </div>
+  ${roadmapTable(shortActions, '#3BAB7A')}
+
+  <!-- ROADMAP: MED -->
+  <div style="padding:14px 18px;background:#2a1a0a;border:1px solid #E8943A44;border-radius:10px;margin:24px 0 14px;">
+    <div style="font-size:11px;font-weight:700;color:#E8943A;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">🔧 Mid-term Actions &nbsp;·&nbsp; 6–18 Months &nbsp;·&nbsp; ${medActions.length} Actions</div>
+    <div style="font-size:11px;color:#6B8099;">Platform deployment, integration work, and capability development.</div>
+  </div>
+  ${roadmapTable(medActions, '#E8943A')}
+
+  <!-- ROADMAP: LONG -->
+  <div style="padding:14px 18px;background:#0e1a2e;border:1px solid #3A8BE844;border-radius:10px;margin:24px 0 14px;">
+    <div style="font-size:11px;font-weight:700;color:#3A8BE8;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;">🚀 Long-term Actions &nbsp;·&nbsp; 18+ Months &nbsp;·&nbsp; ${longActions.length} Actions</div>
+    <div style="font-size:11px;color:#6B8099;">Strategic transformation, AI adoption, and operating model redesign.</div>
+  </div>
+  ${roadmapTable(longActions, '#3A8BE8')}
+
+  <!-- FOOTER -->
+  <div style="margin-top:48px;padding-top:20px;border-top:1px solid #1e3448;display:flex;justify-content:space-between;align-items:center;">
+    <div style="font-size:11px;color:#3a5a7a;">HGS Advisory &nbsp;·&nbsp; FP&amp;A Maturity Assessment &nbsp;·&nbsp; Confidential</div>
+    <div style="font-size:11px;color:#3a5a7a;">${formatted}</div>
+  </div>
+
+</div>
+<script>window.onload = function(){ window.print(); }<\/script>
+</body>
+</html>`;
+
+  const w = window.open('', '_blank');
+  if (!w) { alert('Please allow pop-ups for this page to download the PDF report.'); return; }
+  w.document.write(html);
+  w.document.close();
 }
 </script>
 </body>
