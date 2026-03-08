@@ -1139,7 +1139,7 @@ function prevSection() {
 // GOOGLE SHEETS INTEGRATION
 // ── STEP 1: Paste your Apps Script Web App URL below ──
 // ══════════════════════════════════════════════
-const SHEETS_WEBHOOK_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbznybwmO_0uOkliXVpvpcNm59ZpAfKL_02KAKoTk5hzONwFZg3eMmLD-7utAyWWLlXw/exec';
 
 async function submitToSheets(payload) {
   if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
@@ -2034,7 +2034,7 @@ function renderResultsCTA() {
     <h3>Ready to Accelerate Your Transformation?</h3>
     <p>HGS Advisory specializes in FP&A transformation — from quick-win implementations to full enterprise platform deployments. Let's build your roadmap together.</p>
     <div class="cta-btns">
-      <button class="btn-primary" onclick="https://hgs.com/technology/data-analytics/extended-planning-analysis/">
+      <button class="btn-primary" onclick="window.open('https://hgs.com/technology/data-analytics/extended-planning-analysis/', '_blank')">
         Schedule a Strategy Session
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </button>
