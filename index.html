@@ -1139,7 +1139,7 @@ function prevSection() {
 // GOOGLE SHEETS INTEGRATION
 // ── STEP 1: Paste your Apps Script Web App URL below ──
 // ══════════════════════════════════════════════
-const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbznybwmO_0uOkliXVpvpcNm59ZpAfKL_02KAKoTk5hzONwFZg3eMmLD-7utAyWWLlXw/exec';
+const SHEETS_WEBHOOK_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
 async function submitToSheets(payload) {
   if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
@@ -1665,26 +1665,48 @@ function drawBFBChart(roadmap) {
   const ch = VH - pad.t - pad.b;
 
   const colorMap  = { short:'#3BAB7A', med:'#E8B24A', long:'#3A8BE8' };
-  const effortX   = { low: 0.14, med: 0.50, high: 0.84 };
+  // Effort bands: center + width of band bubbles can scatter within
+  const effortBand = { low: { cx: 0.14, w: 0.18 }, med: { cx: 0.50, w: 0.22 }, high: { cx: 0.84, w: 0.18 } };
   const horizonLabel = { short:'0–6 months', med:'6–18 months', long:'18+ months' };
   const impactLabel  = { high:'High', med:'Medium', low:'Low' };
   const effortLabel  = { low:'Low', med:'Medium', high:'High' };
 
+  // Simple deterministic hash for consistent jitter per action
+  function dhash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
+    return (h >>> 0) / 0xffffffff; // 0..1
+  }
+
+  // ROI range across the full roadmap — spread dynamically across full chart height
+  const rois = roadmap.map(a => a.roi);
+  const roiMin = Math.min(...rois) - 3;
+  const roiMax = Math.max(...rois) + 3;
+
   // ── Build placed positions with jitter ──
   const placed = [];
   const nodes = roadmap.map((a, idx) => {
-    const ex = effortX[a.effort] || 0.5;
-    const ey = 1 - ((a.roi - 60) / 40); // roi 60–100 → y 1..0
+    const band = effortBand[a.effort] || effortBand.med;
+    // Deterministic X scatter within the effort band (based on action name)
+    const jx = (dhash(a.name) - 0.5) * band.w;
+    const ex = Math.max(0.04, Math.min(0.96, band.cx + jx));
+
+    // Y: map roi across the full chart height (high roi = top = low y fraction)
+    const ey = 1 - ((a.roi - roiMin) / (roiMax - roiMin));
+
+    // Small Y jitter so equal-ROI items don't perfectly overlap
+    const jy = (dhash(a.name + 'y') - 0.5) * 0.06;
+
     let bx = pad.l + ex * cw;
-    let by = pad.t + Math.max(0.05, Math.min(0.95, ey)) * ch;
-    const r = 9 + (a.roi - 60) / 7;
+    let by = pad.t + Math.max(0.04, Math.min(0.96, ey + jy)) * ch;
+    const r = 8 + (a.roi - roiMin) / (roiMax - roiMin) * 6; // size 8–14
 
     // Repulsion to reduce overlap
-    for (let iter = 0; iter < 8; iter++) {
+    for (let iter = 0; iter < 12; iter++) {
       placed.forEach(p => {
         const dx = bx - p.x, dy = by - p.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        const minD = r + p.r + 5;
+        const minD = r + p.r + 4;
         if (dist < minD && dist > 0) {
           const push = (minD - dist) / 2;
           bx += (dx / dist) * push;
@@ -2034,7 +2056,7 @@ function renderResultsCTA() {
     <h3>Ready to Accelerate Your Transformation?</h3>
     <p>HGS Advisory specializes in FP&A transformation — from quick-win implementations to full enterprise platform deployments. Let's build your roadmap together.</p>
     <div class="cta-btns">
-      <button class="btn-primary" onclick="window.open('https://hgs.com/technology/data-analytics/extended-planning-analysis/', '_blank')">
+      <button class="btn-primary" onclick="alert('Connect with HGS Advisory — feature coming soon.')">
         Schedule a Strategy Session
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </button>
