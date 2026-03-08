@@ -807,6 +807,7 @@ body::before {
   .action-score-row { grid-template-columns: 1fr; }
   .settings-option-row { grid-template-columns: 1fr 60px; }
 }
+</style>
 
 </head>
 <body>
@@ -1198,7 +1199,7 @@ function renderSection() {
         <div class="q-text">${q.text}</div>
         <div class="q-options">
           ${q.options.map((opt, oi) => `
-            <div class="q-option ${secAnswers[qi] === oi ? 'selected' : ''}" onclick="selectAnswer(${qi}, ${oi})">
+            <div class="q-option ${secAnswers[qi] === oi ? 'selected' : ''}" onclick="selectAnswer(${currentSection}, ${qi}, ${oi})">
               <div class="q-radio"></div>
               <span class="q-option-text">${opt}</span>
               <span class="q-option-score">${oi + 1}</span>
@@ -1224,9 +1225,9 @@ function renderSection() {
   updateNextButton();
 }
 
-function selectAnswer(qi, oi) {
-  if (!answers[currentSection]) answers[currentSection] = {};
-  answers[currentSection][qi] = oi;
+function selectAnswer(si, qi, oi) {
+  if (!answers[si]) answers[si] = {};
+  answers[si][qi] = oi;
 
   // Update UI
   const card = document.getElementById(`qcard-${qi}`);
@@ -1237,8 +1238,8 @@ function selectAnswer(qi, oi) {
     });
   }
 
-  const answered = Object.keys(answers[currentSection]).length;
-  document.getElementById('section-progress-text').textContent = `${answered} / ${SECTIONS[currentSection].questions.length} answered`;
+  const answered = Object.keys(answers[si]).length;
+  document.getElementById('section-progress-text').textContent = `${answered} / ${SECTIONS[si].questions.length} answered`;
   updateNextButton();
   updateProgress();
   renderSectionTabs();
@@ -2241,12 +2242,12 @@ function buildReportHTML() {
   const longActions  = roadmapAll.filter(a => a.horizon === 'long');
 
   return `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>HGS FP&A Maturity Report — ${org}</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
+<\html>
+<\head>
+<\meta charset="UTF-8">
+<\title>HGS FP&A Maturity Report — ${org}</title>
+<\link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<\style>
   * { box-sizing:border-box; margin:0; padding:0; }
   body { font-family:'Outfit',Arial,sans-serif; background:#0D1B2A; color:#fff; font-size:13px; line-height:1.5; }
   .page { max-width:800px; margin:0 auto; padding:48px 40px; }
@@ -2257,9 +2258,9 @@ function buildReportHTML() {
     .page-break { page-break-before:always; }
     .page { padding:0; max-width:100%; }
   }
-</style>
-</head>
-<body>
+<\/style>
+<\/head>
+<\body>
 <div class="page">
 
   <!-- COVER -->
@@ -2365,15 +2366,15 @@ function buildReportHTML() {
   </div>
 
 </div>
-</body>
-</html>`;
+<\/body>
+<\/html>`;
 }
 
 // ── Download button — opens print window ───────────────
 function downloadPDF() {
   const html = buildReportHTML();
   // Inject the print trigger only for the browser window version
-  const printHtml = html.replace('</body>', '<script>window.onload=function(){window.print();}<\/script></body>');
+  const printHtml = html.replace('<\/body>', '<script>window.onload=function(){window.print();}<\/script><\/body>');
   const w = window.open('', '_blank');
   if (!w) { alert('Please allow pop-ups for this page to download the PDF report.'); return; }
   w.document.write(printHtml);
@@ -2569,7 +2570,7 @@ function renderSettingsActions() {
     allTiers.forEach(tier => {
       dimensionActions(dim, tier).forEach(a => {
         if (!byDim[dim].actions.find(x => x.name === a.name)) {
-          byDim[dim].actions.push({ ...a, dimension: a.dimension, icon: a.dimIcon });
+          byDim[dim].actions.push({ ...a });
           byDim[dim].name = a.dimension;
         }
       });
@@ -2590,28 +2591,27 @@ function renderSettingsActions() {
     <div class="settings-section-body" id="sa-${dim}">
       <div style="display:grid;grid-template-columns:1fr 90px 90px;gap:0 12px;padding:8px 14px;border-bottom:1px solid var(--border);">
         <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;">ACTION</div>
-        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">EFFORT (1–10)</div>
-        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">IMPACT (1–10)</div>
+        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">EFFORT (1-10)</div>
+        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">IMPACT (1-10)</div>
       </div>
-      ${d.actions.map(a => {
+      ${d.actions.map((a, ai) => {
         const ov = overrides[a.name] || {};
         const es = ov.effortScore ?? a.effortScore ?? 5;
         const is = ov.impactScore ?? a.impactScore ?? 5;
-        return `<div class="action-score-row">
+        const rowId = dim + '_' + ai;
+        return `<div class="action-score-row" id="arow-${rowId}" data-name="${escHtml(a.name)}">
           <div>
             <div class="action-score-name">${escHtml(a.name)}</div>
-            <div class="action-score-dim">${a.horizon === 'short' ? '⚡ Short' : a.horizon === 'med' ? '🔧 Mid' : '🚀 Long'} term</div>
+            <div class="action-score-dim">${a.horizon === 'short' ? 'Short' : a.horizon === 'med' ? 'Mid' : 'Long'} term</div>
           </div>
           <div class="score-input-wrap">
             <input type="number" min="1" max="10" value="${es}"
-              onchange="saveActionScore('${escHtml(a.name).replace(/'/g,'\\\'')}',' effortScore',+this.value)"
-              title="Effort Score for ${escHtml(a.name)}" />
+              onchange="saveActionScoreByRow('${rowId}','effortScore',+this.value)" />
             <div class="score-input-label">Effort</div>
           </div>
           <div class="score-input-wrap">
             <input type="number" min="1" max="10" value="${is}"
-              onchange="saveActionScore('${escHtml(a.name).replace(/'/g,'\\\'')}',' impactScore',+this.value)"
-              title="Impact Score for ${escHtml(a.name)}" />
+              onchange="saveActionScoreByRow('${rowId}','impactScore',+this.value)" />
             <div class="score-input-label">Impact</div>
           </div>
         </div>`;
@@ -2620,12 +2620,13 @@ function renderSettingsActions() {
   }).join('');
 }
 
-function saveActionScore(name, field, val) {
+function saveActionScoreByRow(rowId, field, val) {
+  const row = document.getElementById('arow-' + rowId);
+  if (!row) return;
+  const name = row.getAttribute('data-name');
   const overrides = getActionScoreOverrides();
-  const cleanName = name.trim();
-  const cleanField = field.trim();
-  if (!overrides[cleanName]) overrides[cleanName] = {};
-  overrides[cleanName][cleanField] = Math.max(1, Math.min(10, val));
+  if (!overrides[name]) overrides[name] = {};
+  overrides[name][field] = Math.max(1, Math.min(10, val));
   localStorage.setItem(SETTINGS_KEY_ACTIONS, JSON.stringify(overrides));
   showSaveBadge();
 }
@@ -2697,7 +2698,6 @@ function importSettings(event) {
 }
 
 // ── Patch buildRoadmap to apply action score overrides ──
-const _origDimensionActions = dimensionActions;
 function dimensionActionsWithOverrides(dimId, tier) {
   const overrides = getActionScoreOverrides();
   return _origDimensionActions(dimId, tier).map(a => {
@@ -2707,27 +2707,8 @@ function dimensionActionsWithOverrides(dimId, tier) {
   });
 }
 
-// ── Patch selectAnswer to use custom scores ──
-const _origSelectAnswer = selectAnswer;
-function selectAnswer(sectionIdx, questionIdx, optionIdx) {
-  if (!answers[sectionIdx]) answers[sectionIdx] = {};
-  answers[sectionIdx][questionIdx] = optionIdx;
-  const card = document.getElementById(`qcard-${questionIdx}`);
-  if (card) {
-    card.classList.add('answered');
-    card.querySelectorAll('.q-option').forEach((el, idx) => {
-      el.classList.toggle('selected', idx === optionIdx);
-    });
-  }
-  const answered = Object.keys(answers[sectionIdx]).length;
-  document.getElementById('section-progress-text').textContent = `${answered} / ${SECTIONS[sectionIdx].questions.length} answered`;
-  updateNextButton();
-  updateProgress();
-  renderSectionTabs();
-}
-
 // Override buildResults scoring to use custom option scores
-const _origBuildResults = buildResults;
+
 function buildResults() {
   const name    = document.getElementById('f-name').value.trim();
   const role    = document.getElementById('f-role').value.trim();
@@ -2824,5 +2805,6 @@ function buildRoadmapWithOverrides(dimScores) {
     }
   });
 })();
-
-
+</script>
+</body>
+</html>
