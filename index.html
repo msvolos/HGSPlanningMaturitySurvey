@@ -715,8 +715,99 @@ body::before {
 .top-emerging   { background: var(--warn); }
 .top-integrated { background: var(--ok); }
 .top-optimized  { background: var(--great); }
-.top-leading    { background: var(--best); }
-</style>
+/* ══ SETTINGS ══ */
+.settings-tab {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  padding: 10px 18px; cursor: pointer; color: var(--silver);
+  font-family: Outfit, sans-serif; font-size: 13px; font-weight: 500;
+  transition: all 0.18s; margin-bottom: -1px;
+}
+.settings-tab:hover { color: var(--white); }
+.settings-tab.active { color: var(--teal-light); border-bottom-color: var(--teal-light); }
+
+.settings-panel { display: none; }
+.settings-panel.active { display: block; }
+
+.settings-section-header {
+  background: var(--ink2); border: 1px solid var(--border);
+  border-radius: 12px 12px 0 0; padding: 14px 18px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; user-select: none;
+  margin-top: 16px;
+}
+.settings-section-header:hover { border-color: rgba(255,255,255,0.14); }
+.settings-section-title { font-size: 14px; font-weight: 600; flex: 1; }
+.settings-section-icon { font-size: 18px; }
+.settings-section-chevron { color: var(--silver); font-size: 12px; transition: transform 0.2s; }
+.settings-section-chevron.open { transform: rotate(180deg); }
+.settings-section-body {
+  border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 12px 12px; padding: 0 18px;
+  display: none;
+}
+.settings-section-body.open { display: block; padding: 18px; }
+
+.settings-question-block {
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; margin-bottom: 14px; background: var(--mist);
+}
+.settings-q-label {
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--teal-light); margin-bottom: 8px; font-weight: 600;
+}
+.settings-input {
+  width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 12px; color: var(--white);
+  font-family: Outfit, sans-serif; font-size: 13px;
+  transition: border-color 0.15s;
+}
+.settings-input:focus { outline: none; border-color: var(--teal); }
+.settings-option-row {
+  display: grid; grid-template-columns: 1fr 72px;
+  gap: 8px; align-items: center; margin-top: 8px;
+}
+.settings-score-input {
+  background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px; color: var(--teal-light);
+  font-family: Outfit, sans-serif; font-size: 13px; font-weight: 700;
+  text-align: center; width: 100%;
+}
+.settings-score-input:focus { outline: none; border-color: var(--teal); }
+.settings-option-label {
+  font-size: 10px; color: var(--silver); text-align: center;
+  margin-top: 2px;
+}
+
+.action-score-row {
+  display: grid; grid-template-columns: 1fr 90px 90px;
+  gap: 12px; align-items: center;
+  padding: 10px 14px; border-bottom: 1px solid var(--border);
+}
+.action-score-row:last-child { border-bottom: none; }
+.action-score-row:hover { background: var(--mist); }
+.action-score-name { font-size: 12px; color: var(--white); line-height: 1.4; }
+.action-score-dim { font-size: 10px; color: var(--silver); margin-top: 2px; }
+.score-input-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.score-input-wrap input {
+  width: 60px; background: rgba(0,0,0,0.3); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 6px; color: var(--teal-light);
+  font-family: Outfit, sans-serif; font-size: 14px; font-weight: 700;
+  text-align: center;
+}
+.score-input-wrap input:focus { outline: none; border-color: var(--teal); }
+.score-input-label { font-size: 10px; color: var(--silver); }
+.save-badge {
+  display: inline-block; background: var(--ok); color: #fff;
+  font-size: 10px; font-weight: 700; padding: 2px 8px;
+  border-radius: 20px; margin-left: 8px; opacity: 0;
+  transition: opacity 0.3s;
+}
+.save-badge.show { opacity: 1; }
+@media(max-width:560px) {
+  .action-score-row { grid-template-columns: 1fr; }
+  .settings-option-row { grid-template-columns: 1fr 60px; }
+}
+
 </head>
 <body>
 <div class="noise"></div>
@@ -726,6 +817,63 @@ body::before {
     <div class="brand-name">HGS Advisory</div>
     <div class="brand-divider"></div>
     <div class="brand-tag">FP&A Maturity Assessment</div>
+    <button id="settings-btn" onclick="openSettings()" title="Settings" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:7px 10px;cursor:pointer;color:var(--silver);display:none;align-items:center;gap:6px;font-size:12px;font-family:Outfit,sans-serif;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--teal)';this.style.color='var(--teal-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--silver)'">
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+      Settings
+    </button>
+  </div>
+
+  <!-- ══ SCREEN: SETTINGS ══ -->
+  <div id="screen-settings" class="screen">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px;flex-wrap:wrap;">
+      <div>
+        <div class="eyebrow">Configuration</div>
+        <h1 style="font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:700;line-height:1.1;">Assessment <em>Settings</em></h1>
+      </div>
+      <button onclick="showScreen('screen-intro')" style="margin-left:auto;background:none;border:1px solid var(--border);border-radius:8px;padding:9px 16px;cursor:pointer;color:var(--silver);font-family:Outfit,sans-serif;font-size:13px;">← Back to Assessment</button>
+    </div>
+
+    <!-- Settings Tabs -->
+    <div style="display:flex;gap:8px;margin-bottom:28px;border-bottom:1px solid var(--border);padding-bottom:0;">
+      <button class="settings-tab active" id="stab-questions" onclick="switchSettingsTab('questions')">📋 Questions & Answers</button>
+      <button class="settings-tab" id="stab-actions" onclick="switchSettingsTab('actions')">🎯 Action Scores</button>
+      <button class="settings-tab" id="stab-reset" onclick="switchSettingsTab('reset')">🔄 Reset</button>
+    </div>
+
+    <!-- Tab: Questions -->
+    <div id="spanel-questions" class="settings-panel active">
+      <p style="font-size:13px;color:var(--silver);margin-bottom:24px;">Edit any question text, option wording, or score (1–5) assigned to each answer. Changes are saved automatically and applied immediately to the assessment.</p>
+      <div id="settings-questions-body"></div>
+    </div>
+
+    <!-- Tab: Actions -->
+    <div id="spanel-actions" class="settings-panel">
+      <p style="font-size:13px;color:var(--silver);margin-bottom:24px;">Adjust the <strong style="color:#fff">Effort Score</strong> (1=minimal, 10=very high) and <strong style="color:#fff">Impact Score</strong> (1=low, 10=transformational) for each recommended action. These control exact bubble placement in the Value vs. Effort matrix.</p>
+      <div id="settings-actions-body"></div>
+    </div>
+
+    <!-- Tab: Reset -->
+    <div id="spanel-reset" class="settings-panel">
+      <div style="max-width:540px;">
+        <div style="background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:32px;">
+          <div style="font-size:24px;margin-bottom:12px;">⚠️</div>
+          <h3 style="font-size:18px;font-weight:700;margin-bottom:10px;">Reset All Settings to Defaults</h3>
+          <p style="font-size:13px;color:var(--silver);margin-bottom:24px;line-height:1.6;">This will restore all questions, answer options, answer scores, and action effort/impact scores to their original values. Any edits you've made will be permanently lost.</p>
+          <button onclick="resetAllSettings()" style="background:#E05555;border:none;border-radius:10px;padding:12px 28px;color:#fff;font-family:Outfit,sans-serif;font-size:14px;font-weight:600;cursor:pointer;">Reset Everything to Defaults</button>
+        </div>
+        <div style="margin-top:24px;background:var(--mist);border:1px solid var(--border);border-radius:16px;padding:24px;">
+          <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;">Export Settings</h3>
+          <p style="font-size:13px;color:var(--silver);margin-bottom:16px;">Download your current settings as a JSON file for backup or sharing.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button onclick="exportSettings()" style="background:var(--teal);border:none;border-radius:8px;padding:10px 20px;color:#fff;font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;">⬇ Export Settings</button>
+            <label style="background:var(--mist);border:1px solid var(--border);border-radius:8px;padding:10px 20px;color:var(--silver);font-family:Outfit,sans-serif;font-size:13px;font-weight:600;cursor:pointer;">
+              ⬆ Import Settings
+              <input type="file" accept=".json" onchange="importSettings(event)" style="display:none">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ══ SCREEN: INTRO ══ -->
@@ -1158,83 +1306,11 @@ async function submitToSheets(payload) {
 }
 
 
-function buildResults() {
-  const name = document.getElementById('f-name').value.trim();
-  const role = document.getElementById('f-role').value.trim();
-  const org  = document.getElementById('f-org').value.trim();
-  const advisor = document.getElementById('f-advisor').value.trim();
-  const industry = document.getElementById('f-industry').value || 'Not specified';
-  const size = document.getElementById('f-size').value || 'Not specified';
-  const date = document.getElementById('f-date').value;
+// NOTE: buildResults is fully overridden by the Settings Engine below.
+// The override below handles custom option scores and action score overrides.
+function buildResults() { /* overridden below by settings engine */ }
 
-  // Calculate scores
-  const dimScores = SECTIONS.map((sec, si) => {
-    const secAnswers = answers[si] || {};
-    const raw = Object.values(secAnswers).reduce((s, v) => s + (v + 1), 0);
-    const maxRaw = sec.questions.length * 5;
-    const pct = raw / maxRaw;
-    const tier = scoreTier(pct);
-    return { ...sec, raw, maxRaw, pct, tier };
-  });
 
-  const totalRaw = dimScores.reduce((s, d) => s + d.raw, 0);
-  const totalMax = dimScores.reduce((s, d) => s + d.maxRaw, 0);
-  const overallPct = totalRaw / totalMax;
-  const overallTier = scoreTier(overallPct);
-  const overallScore = Math.round(overallPct * 100);
-
-  // Build roadmap actions
-  const roadmap = buildRoadmap(dimScores);
-
-  // ── Submit to Google Sheets ──
-  submitToSheets({
-    timestamp:    new Date().toISOString(),
-    name,
-    role,
-    org,
-    industry,
-    size,
-    advisor,
-    date,
-    overall_score:  overallScore,
-    overall_tier:   overallTier.label,
-    // One column per dimension: score and tier
-    ...Object.fromEntries(dimScores.flatMap(d => [
-      [`dim_${d.id}_score`, d.raw],
-      [`dim_${d.id}_tier`,  d.tier.label],
-    ])),
-    // Individual question answers (1–5 scale)
-    ...Object.fromEntries(
-      SECTIONS.flatMap((sec, si) =>
-        sec.questions.map((q, qi) => {
-          const ans = answers[si]?.[qi];
-          return [`q${si+1}_${qi+1}`, ans !== undefined ? ans + 1 : ''];
-        })
-      )
-    )
-  });
-
-  // Render
-  document.getElementById('screen-results').innerHTML = `
-    ${renderResultsHero(name, role, org, date, overallScore, overallTier, industry, size, advisor)}
-    ${renderDimensionScores(dimScores)}
-    ${renderRadar(dimScores)}
-    ${renderBFBChart(roadmap)}
-    ${renderQuadrantCards(roadmap)}
-    ${renderRoadmap(roadmap)}
-    ${renderFindings(dimScores)}
-    ${renderResultsCTA()}
-  `;
-
-  showScreen('screen-results');
-
-  // Animate after render
-  setTimeout(() => {
-    drawRadar(dimScores);
-    drawBFBChart(roadmap);
-    animateBars(dimScores);
-  }, 100);
-}
 
 function renderResultsHero(name, role, org, date, score, tier, industry, size, advisor) {
   const formatted = date ? new Date(date).toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}) : '';
@@ -1437,188 +1513,188 @@ function dimensionActions(dimId, tier) {
   const library = {
     tools: {
       reactive: [
-        { name:'Audit current tool landscape & pain points', horizon:'short', effort:'low', impact:'high', roi:85, desc:'Document all planning tools, data flows, and manual workarounds to create a baseline.', category:'tools' },
-        { name:'Implement structured Excel model governance', horizon:'short', effort:'low', impact:'med', roi:60, desc:'Standardize model templates, naming conventions, and a shared folder structure.', category:'tools' },
-        { name:'Evaluate FP&A platform vendors (RFP/demo cycle)', horizon:'med', effort:'med', impact:'high', roi:90, desc:'Run a structured selection process for a dedicated planning platform.', category:'tools' },
+        { name:'Audit current tool landscape & pain points',         horizon:'short', effortScore:2, impactScore:7, effort:'low',  impact:'high', roi:85, desc:'Document all planning tools, data flows, and manual workarounds to create a baseline.', category:'tools' },
+        { name:'Implement structured Excel model governance',        horizon:'short', effortScore:3, impactScore:5, effort:'low',  impact:'med',  roi:60, desc:'Standardize model templates, naming conventions, and a shared folder structure.', category:'tools' },
+        { name:'Evaluate FP&A platform vendors (RFP/demo cycle)',    horizon:'med',   effortScore:5, impactScore:9, effort:'med',  impact:'high', roi:90, desc:'Run a structured selection process for a dedicated planning platform.', category:'tools' },
       ],
       emerging: [
-        { name:'Deploy FP&A platform for core budgeting', horizon:'short', effort:'high', impact:'high', roi:88, desc:'Implement a dedicated FP&A platform to replace Excel-based budgeting.', category:'tools' },
-        { name:'Establish platform governance and admin function', horizon:'short', effort:'low', impact:'med', roi:65, desc:'Define platform ownership, change management, and model documentation standards.', category:'tools' },
-        { name:'Integrate ERP as primary data source', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Automate actuals ingestion from ERP into planning platform.', category:'tools' },
+        { name:'Deploy FP&A platform for core budgeting',            horizon:'short', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Implement a dedicated FP&A platform to replace Excel-based budgeting.', category:'tools' },
+        { name:'Establish platform governance and admin function',   horizon:'short', effortScore:3, impactScore:5, effort:'low',  impact:'med',  roi:65, desc:'Define platform ownership, change management, and model documentation standards.', category:'tools' },
+        { name:'Integrate ERP as primary data source',               horizon:'med',   effortScore:6, impactScore:8, effort:'med',  impact:'high', roi:82, desc:'Automate actuals ingestion from ERP into planning platform.', category:'tools' },
       ],
       integrated: [
-        { name:'Expand platform to additional planning modules', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Add workforce, capex, or revenue planning modules to existing platform.', category:'tools' },
-        { name:'Implement self-service analytics layer', horizon:'med', effort:'med', impact:'med', roi:72, desc:'Deploy BI layer enabling business users to access planning data directly.', category:'tools' },
-        { name:'Build Center of Excellence for platform management', horizon:'long', effort:'low', impact:'med', roi:68, desc:'Formalize a COE to drive platform optimization and user enablement.', category:'tools' },
+        { name:'Expand platform to additional planning modules',     horizon:'med',   effortScore:6, impactScore:8, effort:'med',  impact:'high', roi:80, desc:'Add workforce, capex, or revenue planning modules to existing platform.', category:'tools' },
+        { name:'Implement self-service analytics layer',             horizon:'med',   effortScore:5, impactScore:6, effort:'med',  impact:'med',  roi:72, desc:'Deploy BI layer enabling business users to access planning data directly.', category:'tools' },
+        { name:'Build Center of Excellence for platform management', horizon:'long',  effortScore:4, impactScore:6, effort:'low',  impact:'med',  roi:68, desc:'Formalize a COE to drive platform optimization and user enablement.', category:'tools' },
       ],
       optimized: [
-        { name:'Architect real-time data integration layer', horizon:'med', effort:'high', impact:'high', roi:85, desc:'Move to event-driven data pipelines for near real-time planning data.', category:'tools' },
-        { name:'Implement unified data model across all planning domains', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Build an enterprise-grade planning data model connecting finance and operations.', category:'tools' },
+        { name:'Architect real-time data integration layer',                    horizon:'med',  effortScore:8, impactScore:9, effort:'high', impact:'high', roi:85, desc:'Move to event-driven data pipelines for near real-time planning data.', category:'tools' },
+        { name:'Implement unified data model across all planning domains',      horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:82, desc:'Build an enterprise-grade planning data model connecting finance and operations.', category:'tools' },
       ],
       leading: [
-        { name:'Explore agentic AI for model maintenance', horizon:'long', effort:'high', impact:'high', roi:78, desc:'Evaluate AI agents that can autonomously update planning models.', category:'tools' },
+        { name:'Explore agentic AI for model maintenance', horizon:'long', effortScore:9, impactScore:8, effort:'high', impact:'high', roi:78, desc:'Evaluate AI agents that can autonomously update planning models.', category:'tools' },
       ]
     },
     forecast: {
       reactive: [
-        { name:'Implement quarterly reforecast cadence', horizon:'short', effort:'low', impact:'high', roi:80, desc:'Establish a formal mid-year and Q3 reforecast process with defined templates.', category:'forecast' },
-        { name:'Define a driver-based forecasting model', horizon:'short', effort:'med', impact:'high', roi:85, desc:'Identify 5–10 key business drivers that link operational activity to financial outcomes.', category:'forecast' },
-        { name:'Introduce base/upside/downside scenario framework', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Build a lightweight scenario structure to frame planning discussions with leadership.', category:'forecast' },
+        { name:'Implement quarterly reforecast cadence',              horizon:'short', effortScore:2, impactScore:8, effort:'low', impact:'high', roi:80, desc:'Establish a formal mid-year and Q3 reforecast process with defined templates.', category:'forecast' },
+        { name:'Define a driver-based forecasting model',             horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:85, desc:'Identify 5–10 key business drivers that link operational activity to financial outcomes.', category:'forecast' },
+        { name:'Introduce base/upside/downside scenario framework',   horizon:'med',   effortScore:4, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Build a lightweight scenario structure to frame planning discussions with leadership.', category:'forecast' },
       ],
       emerging: [
-        { name:'Migrate to rolling 12-month forecast', horizon:'short', effort:'med', impact:'high', roi:87, desc:'Replace static annual budget reforecasts with a continuous rolling horizon.', category:'forecast' },
-        { name:'Formalize forecast accuracy tracking', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Build a monthly actuals vs. forecast variance scorecard by business unit.', category:'forecast' },
-        { name:'Build scenario modeling in planning tool', horizon:'med', effort:'med', impact:'high', roi:83, desc:'Implement dynamic scenario capability within the FP&A platform.', category:'forecast' },
+        { name:'Migrate to rolling 12-month forecast',        horizon:'short', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:87, desc:'Replace static annual budget reforecasts with a continuous rolling horizon.', category:'forecast' },
+        { name:'Formalize forecast accuracy tracking',        horizon:'short', effortScore:2, impactScore:6, effort:'low', impact:'med',  roi:70, desc:'Build a monthly actuals vs. forecast variance scorecard by business unit.', category:'forecast' },
+        { name:'Build scenario modeling in planning tool',   horizon:'med',   effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Implement dynamic scenario capability within the FP&A platform.', category:'forecast' },
       ],
       integrated: [
-        { name:'Implement statistical baseline forecasting', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Apply time-series statistical models to generate data-driven forecast baselines.', category:'forecast' },
-        { name:'Reduce forecast cycle time to <3 days', horizon:'short', effort:'med', impact:'med', roi:72, desc:'Streamline the end-to-end reforecast process using automation and pre-approved assumptions.', category:'forecast' },
+        { name:'Implement statistical baseline forecasting', horizon:'med',   effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Apply time-series statistical models to generate data-driven forecast baselines.', category:'forecast' },
+        { name:'Reduce forecast cycle time to <3 days',     horizon:'short', effortScore:5, impactScore:6, effort:'med', impact:'med',  roi:72, desc:'Streamline the end-to-end reforecast process using automation and pre-approved assumptions.', category:'forecast' },
       ],
       optimized: [
-        { name:'Deploy ML-assisted forecasting models', horizon:'med', effort:'high', impact:'high', roi:86, desc:'Implement machine learning models for revenue, demand, and workforce forecasting.', category:'forecast' },
-        { name:'Build real-time scenario simulation engine', horizon:'long', effort:'high', impact:'high', roi:80, desc:'Create an on-demand scenario engine enabling same-day impact modeling.', category:'forecast' },
+        { name:'Deploy ML-assisted forecasting models',          horizon:'med',  effortScore:8, impactScore:9, effort:'high', impact:'high', roi:86, desc:'Implement machine learning models for revenue, demand, and workforce forecasting.', category:'forecast' },
+        { name:'Build real-time scenario simulation engine',     horizon:'long', effortScore:9, impactScore:8, effort:'high', impact:'high', roi:80, desc:'Create an on-demand scenario engine enabling same-day impact modeling.', category:'forecast' },
       ],
       leading: [
-        { name:'Implement continuous autonomous forecast refresh', horizon:'long', effort:'high', impact:'high', roi:75, desc:'Deploy always-on forecasting with automated model recalibration.', category:'forecast' },
+        { name:'Implement continuous autonomous forecast refresh', horizon:'long', effortScore:9, impactScore:8, effort:'high', impact:'high', roi:75, desc:'Deploy always-on forecasting with automated model recalibration.', category:'forecast' },
       ]
     },
     data: {
       reactive: [
-        { name:'Conduct data quality audit across planning inputs', horizon:'short', effort:'low', impact:'high', roi:82, desc:'Document data sources, identify gaps, duplicates, and reconciliation issues.', category:'data' },
-        { name:'Define chart of accounts and cost center governance', horizon:'short', effort:'med', impact:'high', roi:80, desc:'Standardize the financial data structure to enable consistent reporting.', category:'data' },
-        { name:'Automate actuals ingestion from ERP', horizon:'med', effort:'med', impact:'high', roi:88, desc:'Eliminate manual data pulls by building automated ERP-to-planning feeds.', category:'data' },
+        { name:'Conduct data quality audit across planning inputs',       horizon:'short', effortScore:2, impactScore:8, effort:'low', impact:'high', roi:82, desc:'Document data sources, identify gaps, duplicates, and reconciliation issues.', category:'data' },
+        { name:'Define chart of accounts and cost center governance',     horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:80, desc:'Standardize the financial data structure to enable consistent reporting.', category:'data' },
+        { name:'Automate actuals ingestion from ERP',                     horizon:'med',   effortScore:6, impactScore:9, effort:'med', impact:'high', roi:88, desc:'Eliminate manual data pulls by building automated ERP-to-planning feeds.', category:'data' },
       ],
       emerging: [
-        { name:'Implement master data management process', horizon:'short', effort:'med', impact:'high', roi:83, desc:'Establish a governed MDM process for hierarchies, cost centers, and entities.', category:'data' },
-        { name:'Connect HR system for headcount data', horizon:'short', effort:'med', impact:'high', roi:80, desc:'Automate headcount and compensation data flows from HRIS to planning tool.', category:'data' },
-        { name:'Build data dictionary for planning metrics', horizon:'short', effort:'low', impact:'med', roi:65, desc:'Define and document all planning metrics, KPIs, and calculation logic.', category:'data' },
+        { name:'Implement master data management process', horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Establish a governed MDM process for hierarchies, cost centers, and entities.', category:'data' },
+        { name:'Connect HR system for headcount data',     horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:80, desc:'Automate headcount and compensation data flows from HRIS to planning tool.', category:'data' },
+        { name:'Build data dictionary for planning metrics',horizon:'short', effortScore:2, impactScore:5, effort:'low', impact:'med',  roi:65, desc:'Define and document all planning metrics, KPIs, and calculation logic.', category:'data' },
       ],
       integrated: [
-        { name:'Implement CRM–finance integration for revenue planning', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Connect CRM pipeline data to revenue forecast models.', category:'data' },
-        { name:'Deploy automated data quality monitoring', horizon:'med', effort:'med', impact:'med', roi:75, desc:'Build alerts and dashboards to proactively detect data quality issues.', category:'data' },
+        { name:'Implement CRM–finance integration for revenue planning', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Connect CRM pipeline data to revenue forecast models.', category:'data' },
+        { name:'Deploy automated data quality monitoring',               horizon:'med', effortScore:5, impactScore:6, effort:'med', impact:'med',  roi:75, desc:'Build alerts and dashboards to proactively detect data quality issues.', category:'data' },
       ],
       optimized: [
-        { name:'Build enterprise data lake for planning analytics', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Consolidate all planning and operational data into a governed data lake.', category:'data' },
-        { name:'Implement automated data lineage tracking', horizon:'med', effort:'med', impact:'med', roi:70, desc:'Deploy data lineage tooling to trace every number back to its source.', category:'data' },
+        { name:'Build enterprise data lake for planning analytics', horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:82, desc:'Consolidate all planning and operational data into a governed data lake.', category:'data' },
+        { name:'Implement automated data lineage tracking',         horizon:'med',  effortScore:5, impactScore:6, effort:'med',  impact:'med',  roi:70, desc:'Deploy data lineage tooling to trace every number back to its source.', category:'data' },
       ],
       leading: [
-        { name:'Explore real-time operational data streaming', horizon:'long', effort:'high', impact:'high', roi:76, desc:'Implement event-driven data pipelines for real-time operational planning inputs.', category:'data' },
+        { name:'Explore real-time operational data streaming', horizon:'long', effortScore:9, impactScore:8, effort:'high', impact:'high', roi:76, desc:'Implement event-driven data pipelines for real-time operational planning inputs.', category:'data' },
       ]
     },
     reporting: {
       reactive: [
-        { name:'Standardize management reporting templates', horizon:'short', effort:'low', impact:'high', roi:82, desc:'Create consistent, branded templates for monthly management reporting.', category:'reporting' },
-        { name:'Automate the monthly close reporting package', horizon:'short', effort:'med', impact:'high', roi:85, desc:'Build automated data refresh for the monthly P&L and KPI pack.', category:'reporting' },
-        { name:'Deploy a basic BI dashboard (Power BI/Tableau)', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Implement a self-service BI layer for financial and operational KPIs.', category:'reporting' },
+        { name:'Standardize management reporting templates',       horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:82, desc:'Create consistent, branded templates for monthly management reporting.', category:'reporting' },
+        { name:'Automate the monthly close reporting package',    horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:85, desc:'Build automated data refresh for the monthly P&L and KPI pack.', category:'reporting' },
+        { name:'Deploy a basic BI dashboard (Power BI/Tableau)', horizon:'med',   effortScore:5, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Implement a self-service BI layer for financial and operational KPIs.', category:'reporting' },
       ],
       emerging: [
-        { name:'Establish self-service reporting for business partners', horizon:'short', effort:'med', impact:'high', roi:83, desc:'Enable business leaders to access their own P&L and KPI data directly.', category:'reporting' },
-        { name:'Introduce variance narrative framework', horizon:'short', effort:'low', impact:'med', roi:68, desc:'Standardize how variance commentary is structured and communicated.', category:'reporting' },
-        { name:'Target virtual close (≤5 day close)', horizon:'med', effort:'high', impact:'high', roi:86, desc:'Reengineer the close process to accelerate reporting timelines.', category:'reporting' },
+        { name:'Establish self-service reporting for business partners', horizon:'short', effortScore:5, impactScore:8, effort:'med',  impact:'high', roi:83, desc:'Enable business leaders to access their own P&L and KPI data directly.', category:'reporting' },
+        { name:'Introduce variance narrative framework',                 horizon:'short', effortScore:2, impactScore:5, effort:'low',  impact:'med',  roi:68, desc:'Standardize how variance commentary is structured and communicated.', category:'reporting' },
+        { name:'Target virtual close (≤5 day close)',                    horizon:'med',   effortScore:8, impactScore:9, effort:'high', impact:'high', roi:86, desc:'Reengineer the close process to accelerate reporting timelines.', category:'reporting' },
       ],
       integrated: [
-        { name:'Build integrated financial and operational dashboards', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Create dashboards linking financial outcomes to operational drivers.', category:'reporting' },
-        { name:'Implement anomaly detection in reporting', horizon:'med', effort:'med', impact:'med', roi:74, desc:'Use statistical methods to automatically flag unusual variances.', category:'reporting' },
+        { name:'Build integrated financial and operational dashboards', horizon:'med', effortScore:6, impactScore:8, effort:'med', impact:'high', roi:80, desc:'Create dashboards linking financial outcomes to operational drivers.', category:'reporting' },
+        { name:'Implement anomaly detection in reporting',              horizon:'med', effortScore:5, impactScore:6, effort:'med', impact:'med',  roi:74, desc:'Use statistical methods to automatically flag unusual variances.', category:'reporting' },
       ],
       optimized: [
-        { name:'Deploy AI-assisted narrative generation', horizon:'long', effort:'high', impact:'high', roi:78, desc:'Use NLG technology to automate financial commentary and board reporting.', category:'reporting' },
-        { name:'Build predictive KPI dashboards', horizon:'med', effort:'high', impact:'high', roi:82, desc:'Add forward-looking forecasted KPIs alongside historical actuals in dashboards.', category:'reporting' },
+        { name:'Deploy AI-assisted narrative generation', horizon:'long', effortScore:8, impactScore:8, effort:'high', impact:'high', roi:78, desc:'Use NLG technology to automate financial commentary and board reporting.', category:'reporting' },
+        { name:'Build predictive KPI dashboards',         horizon:'med',  effortScore:7, impactScore:8, effort:'high', impact:'high', roi:82, desc:'Add forward-looking forecasted KPIs alongside historical actuals in dashboards.', category:'reporting' },
       ],
       leading: [
-        { name:'Implement executive decision intelligence platform', horizon:'long', effort:'high', impact:'high', roi:77, desc:'Build an AI-powered decision support layer integrated with board reporting.', category:'reporting' },
+        { name:'Implement executive decision intelligence platform', horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:77, desc:'Build an AI-powered decision support layer integrated with board reporting.', category:'reporting' },
       ]
     },
     xpna: {
       reactive: [
-        { name:'Launch business partnering programme', horizon:'short', effort:'low', impact:'high', roi:84, desc:'Assign FP&A business partners to key business units with regular cadence.', category:'xpna' },
-        { name:'Integrate HR headcount data into financial model', horizon:'short', effort:'med', impact:'high', roi:83, desc:'Connect workforce data to financials for fully loaded cost visibility.', category:'xpna' },
-        { name:'Establish cross-functional planning governance', horizon:'med', effort:'low', impact:'high', roi:80, desc:'Create a planning steering committee with Finance, HR, and Sales representation.', category:'xpna' },
+        { name:'Launch business partnering programme',              horizon:'short', effortScore:3, impactScore:8, effort:'low', impact:'high', roi:84, desc:'Assign FP&A business partners to key business units with regular cadence.', category:'xpna' },
+        { name:'Integrate HR headcount data into financial model',  horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Connect workforce data to financials for fully loaded cost visibility.', category:'xpna' },
+        { name:'Establish cross-functional planning governance',    horizon:'med',   effortScore:3, impactScore:8, effort:'low', impact:'high', roi:80, desc:'Create a planning steering committee with Finance, HR, and Sales representation.', category:'xpna' },
       ],
       emerging: [
-        { name:'Integrate Sales pipeline into revenue forecast', horizon:'short', effort:'med', impact:'high', roi:86, desc:'Connect CRM data to the revenue forecast for a demand-driven planning model.', category:'xpna' },
-        { name:'Build integrated workforce and cost plan', horizon:'med', effort:'med', impact:'high', roi:84, desc:'Combine headcount plan with compensation, benefits, and productivity assumptions.', category:'xpna' },
-        { name:'Roll out planning platform access to business units', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Enable direct input and visibility for key operational leaders.', category:'xpna' },
+        { name:'Integrate Sales pipeline into revenue forecast',         horizon:'short', effortScore:5, impactScore:9, effort:'med', impact:'high', roi:86, desc:'Connect CRM data to the revenue forecast for a demand-driven planning model.', category:'xpna' },
+        { name:'Build integrated workforce and cost plan',               horizon:'med',   effortScore:6, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Combine headcount plan with compensation, benefits, and productivity assumptions.', category:'xpna' },
+        { name:'Roll out planning platform access to business units',    horizon:'med',   effortScore:6, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Enable direct input and visibility for key operational leaders.', category:'xpna' },
       ],
       integrated: [
-        { name:'Implement full xP&A model (Finance+HR+Sales+Ops)', horizon:'med', effort:'high', impact:'high', roi:88, desc:'Build a fully integrated cross-functional planning model across all major domains.', category:'xpna' },
-        { name:'Develop Finance as Strategic Advisor programme', horizon:'long', effort:'med', impact:'high', roi:80, desc:'Upskill finance team and redefine role from reporters to strategic business advisors.', category:'xpna' },
+        { name:'Implement full xP&A model (Finance+HR+Sales+Ops)',       horizon:'med',  effortScore:8, impactScore:9, effort:'high', impact:'high', roi:88, desc:'Build a fully integrated cross-functional planning model across all major domains.', category:'xpna' },
+        { name:'Develop Finance as Strategic Advisor programme',         horizon:'long', effortScore:6, impactScore:8, effort:'med',  impact:'high', roi:80, desc:'Upskill finance team and redefine role from reporters to strategic business advisors.', category:'xpna' },
       ],
       optimized: [
-        { name:'Embed real-time operational–financial linkage', horizon:'long', effort:'high', impact:'high', roi:85, desc:'Build live connections between operational metrics and financial forecast updates.', category:'xpna' },
-        { name:'Implement supply chain / operational planning integration', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Extend xP&A to include supply chain and operational planning modules.', category:'xpna' },
+        { name:'Embed real-time operational–financial linkage',             horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:85, desc:'Build live connections between operational metrics and financial forecast updates.', category:'xpna' },
+        { name:'Implement supply chain / operational planning integration', horizon:'long', effortScore:9, impactScore:8, effort:'high', impact:'high', roi:82, desc:'Extend xP&A to include supply chain and operational planning modules.', category:'xpna' },
       ],
       leading: [
-        { name:'Achieve fully converged enterprise planning', horizon:'long', effort:'high', impact:'high', roi:78, desc:'Integrate strategic, financial, and operational plans into a single platform.', category:'xpna' },
+        { name:'Achieve fully converged enterprise planning', horizon:'long', effortScore:10, impactScore:9, effort:'high', impact:'high', roi:78, desc:'Integrate strategic, financial, and operational plans into a single platform.', category:'xpna' },
       ]
     },
     ai: {
       reactive: [
-        { name:'Conduct AI readiness assessment', horizon:'short', effort:'low', impact:'med', roi:72, desc:'Evaluate data quality, team skills, and use case pipeline for AI adoption.', category:'ai' },
-        { name:'Automate repetitive data tasks (RPA/Python)', horizon:'short', effort:'med', impact:'high', roi:84, desc:'Eliminate manual data extraction and formatting tasks with basic automation.', category:'ai' },
-        { name:'Pilot Excel / Power BI AI features (Copilot)', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Explore AI features already embedded in existing Microsoft tools.', category:'ai' },
+        { name:'Conduct AI readiness assessment',              horizon:'short', effortScore:2, impactScore:5, effort:'low', impact:'med', roi:72, desc:'Evaluate data quality, team skills, and use case pipeline for AI adoption.', category:'ai' },
+        { name:'Automate repetitive data tasks (RPA/Python)', horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Eliminate manual data extraction and formatting tasks with basic automation.', category:'ai' },
+        { name:'Pilot Excel / Power BI AI features (Copilot)',horizon:'short', effortScore:2, impactScore:5, effort:'low', impact:'med', roi:70, desc:'Explore AI features already embedded in existing Microsoft tools.', category:'ai' },
       ],
       emerging: [
-        { name:'Implement statistical forecasting models', horizon:'med', effort:'med', impact:'high', roi:83, desc:'Deploy time-series statistical models as a forecasting baseline.', category:'ai' },
-        { name:'Build automated reporting pipelines', horizon:'short', effort:'med', impact:'high', roi:82, desc:'Automate end-to-end report generation to eliminate manual compilation.', category:'ai' },
-        { name:'Define AI use case roadmap for FP&A', horizon:'short', effort:'low', impact:'med', roi:68, desc:'Identify, prioritize, and document AI use cases with expected ROI.', category:'ai' },
+        { name:'Implement statistical forecasting models', horizon:'med',   effortScore:6, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Deploy time-series statistical models as a forecasting baseline.', category:'ai' },
+        { name:'Build automated reporting pipelines',      horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Automate end-to-end report generation to eliminate manual compilation.', category:'ai' },
+        { name:'Define AI use case roadmap for FP&A',     horizon:'short', effortScore:2, impactScore:5, effort:'low', impact:'med',  roi:68, desc:'Identify, prioritize, and document AI use cases with expected ROI.', category:'ai' },
       ],
       integrated: [
-        { name:'Deploy ML-assisted revenue forecasting', horizon:'med', effort:'high', impact:'high', roi:86, desc:'Implement machine learning models for demand and revenue prediction.', category:'ai' },
-        { name:'Build anomaly detection for financial data', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Deploy statistical anomaly detection to flag unusual movements automatically.', category:'ai' },
-        { name:'Upskill team in data science and AI interpretation', horizon:'med', effort:'med', impact:'med', roi:74, desc:'Invest in training programmes to build AI literacy across the FP&A team.', category:'ai' },
+        { name:'Deploy ML-assisted revenue forecasting',              horizon:'med', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:86, desc:'Implement machine learning models for demand and revenue prediction.', category:'ai' },
+        { name:'Build anomaly detection for financial data',          horizon:'med', effortScore:6, impactScore:8, effort:'med',  impact:'high', roi:80, desc:'Deploy statistical anomaly detection to flag unusual movements automatically.', category:'ai' },
+        { name:'Upskill team in data science and AI interpretation',  horizon:'med', effortScore:5, impactScore:6, effort:'med',  impact:'med',  roi:74, desc:'Invest in training programmes to build AI literacy across the FP&A team.', category:'ai' },
       ],
       optimized: [
-        { name:'Implement AI-assisted scenario planning', horizon:'med', effort:'high', impact:'high', roi:85, desc:'Use AI to generate and stress-test planning scenarios automatically.', category:'ai' },
-        { name:'Deploy NLG for automated reporting narrative', horizon:'long', effort:'high', impact:'high', roi:79, desc:'Use natural language generation to automate board and management commentary.', category:'ai' },
+        { name:'Implement AI-assisted scenario planning',         horizon:'med',  effortScore:8, impactScore:9, effort:'high', impact:'high', roi:85, desc:'Use AI to generate and stress-test planning scenarios automatically.', category:'ai' },
+        { name:'Deploy NLG for automated reporting narrative',    horizon:'long', effortScore:7, impactScore:8, effort:'high', impact:'high', roi:79, desc:'Use natural language generation to automate board and management commentary.', category:'ai' },
       ],
       leading: [
-        { name:'Deploy agentic AI for autonomous FP&A tasks', horizon:'long', effort:'high', impact:'high', roi:76, desc:'Implement AI agents capable of executing planning tasks autonomously.', category:'ai' },
+        { name:'Deploy agentic AI for autonomous FP&A tasks', horizon:'long', effortScore:10, impactScore:9, effort:'high', impact:'high', roi:76, desc:'Implement AI agents capable of executing planning tasks autonomously.', category:'ai' },
       ]
     },
     process: {
       reactive: [
-        { name:'Document all core FP&A processes', horizon:'short', effort:'low', impact:'high', roi:82, desc:'Create process maps for budgeting, forecasting, close, and reporting.', category:'process' },
-        { name:'Publish a formal planning calendar', horizon:'short', effort:'low', impact:'high', roi:85, desc:'Define and communicate planning milestones to all stakeholders.', category:'process' },
-        { name:'Implement planning assumptions governance', horizon:'short', effort:'low', impact:'high', roi:80, desc:'Establish a formal process for developing, reviewing, and approving planning assumptions.', category:'process' },
+        { name:'Document all core FP&A processes',            horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:82, desc:'Create process maps for budgeting, forecasting, close, and reporting.', category:'process' },
+        { name:'Publish a formal planning calendar',          horizon:'short', effortScore:1, impactScore:8, effort:'low', impact:'high', roi:85, desc:'Define and communicate planning milestones to all stakeholders.', category:'process' },
+        { name:'Implement planning assumptions governance',   horizon:'short', effortScore:3, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Establish a formal process for developing, reviewing, and approving planning assumptions.', category:'process' },
       ],
       emerging: [
-        { name:'Implement workflow and approvals in planning tool', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Replace email-based approvals with platform-managed workflows.', category:'process' },
-        { name:'Establish forecast accuracy KPI programme', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Define and track forecast accuracy as a formal performance metric.', category:'process' },
-        { name:'Formalize version control and audit trail', horizon:'short', effort:'low', impact:'med', roi:68, desc:'Implement platform-managed versioning with clear naming conventions.', category:'process' },
+        { name:'Implement workflow and approvals in planning tool', horizon:'med',   effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Replace email-based approvals with platform-managed workflows.', category:'process' },
+        { name:'Establish forecast accuracy KPI programme',        horizon:'short', effortScore:3, impactScore:6, effort:'low', impact:'med',  roi:70, desc:'Define and track forecast accuracy as a formal performance metric.', category:'process' },
+        { name:'Formalize version control and audit trail',        horizon:'short', effortScore:2, impactScore:5, effort:'low', impact:'med',  roi:68, desc:'Implement platform-managed versioning with clear naming conventions.', category:'process' },
       ],
       integrated: [
-        { name:'Benchmark planning cycle times vs. industry', horizon:'short', effort:'low', impact:'med', roi:65, desc:'Compare your planning KPIs to APQC and AFP benchmarks.', category:'process' },
-        { name:'Build a continuous improvement programme for FP&A', horizon:'long', effort:'med', impact:'high', roi:78, desc:'Create a formal FP&A improvement backlog reviewed quarterly.', category:'process' },
+        { name:'Benchmark planning cycle times vs. industry',          horizon:'short', effortScore:2, impactScore:5, effort:'low', impact:'med',  roi:65, desc:'Compare your planning KPIs to APQC and AFP benchmarks.', category:'process' },
+        { name:'Build a continuous improvement programme for FP&A',    horizon:'long',  effortScore:5, impactScore:7, effort:'med', impact:'high', roi:78, desc:'Create a formal FP&A improvement backlog reviewed quarterly.', category:'process' },
       ],
       optimized: [
-        { name:'Achieve agile planning process design', horizon:'med', effort:'med', impact:'high', roi:82, desc:'Redesign planning as an iterative, sprint-based process with shorter cycles.', category:'process' },
-        { name:'Implement SLA-based FP&A service model', horizon:'long', effort:'med', impact:'med', roi:72, desc:'Define formal service levels for all FP&A deliverables.', category:'process' },
+        { name:'Achieve agile planning process design',      horizon:'med',  effortScore:6, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Redesign planning as an iterative, sprint-based process with shorter cycles.', category:'process' },
+        { name:'Implement SLA-based FP&A service model',    horizon:'long', effortScore:5, impactScore:6, effort:'med', impact:'med',  roi:72, desc:'Define formal service levels for all FP&A deliverables.', category:'process' },
       ],
       leading: [
-        { name:'Move to event-driven, always-on planning', horizon:'long', effort:'high', impact:'high', roi:76, desc:'Eliminate discrete planning cycles in favor of continuous event-triggered updates.', category:'process' },
+        { name:'Move to event-driven, always-on planning', horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:76, desc:'Eliminate discrete planning cycles in favor of continuous event-triggered updates.', category:'process' },
       ]
     },
     team: {
       reactive: [
-        { name:'Define FP&A team competency framework', horizon:'short', effort:'low', impact:'high', roi:80, desc:'Map required skills, behaviors, and career levels for the FP&A function.', category:'team' },
-        { name:'Hire or develop a data-savvy FP&A analyst', horizon:'short', effort:'med', impact:'high', roi:82, desc:'Bring in someone who can bridge finance and data skills.', category:'team' },
-        { name:'Launch FP&A training programme', horizon:'short', effort:'med', impact:'high', roi:84, desc:'Invest in structured training covering modeling, tools, and business partnering.', category:'team' },
+        { name:'Define FP&A team competency framework',      horizon:'short', effortScore:2, impactScore:7, effort:'low', impact:'high', roi:80, desc:'Map required skills, behaviors, and career levels for the FP&A function.', category:'team' },
+        { name:'Hire or develop a data-savvy FP&A analyst',  horizon:'short', effortScore:5, impactScore:8, effort:'med', impact:'high', roi:82, desc:'Bring in someone who can bridge finance and data skills.', category:'team' },
+        { name:'Launch FP&A training programme',             horizon:'short', effortScore:4, impactScore:8, effort:'med', impact:'high', roi:84, desc:'Invest in structured training covering modeling, tools, and business partnering.', category:'team' },
       ],
       emerging: [
-        { name:'Restructure FP&A around business partnership model', horizon:'med', effort:'med', impact:'high', roi:83, desc:'Create dedicated business partner roles aligned to key business units.', category:'team' },
-        { name:'Automate to free capacity for value-added work', horizon:'med', effort:'med', impact:'high', roi:85, desc:'Target 20% reduction in time spent on data gathering through automation.', category:'team' },
-        { name:'Implement FP&A capacity planning for peak cycles', horizon:'short', effort:'low', impact:'med', roi:70, desc:'Build a resource plan for the annual budget and quarterly forecast peaks.', category:'team' },
+        { name:'Restructure FP&A around business partnership model', horizon:'med',   effortScore:7, impactScore:8, effort:'med', impact:'high', roi:83, desc:'Create dedicated business partner roles aligned to key business units.', category:'team' },
+        { name:'Automate to free capacity for value-added work',      horizon:'med',   effortScore:5, impactScore:8, effort:'med', impact:'high', roi:85, desc:'Target 20% reduction in time spent on data gathering through automation.', category:'team' },
+        { name:'Implement FP&A capacity planning for peak cycles',    horizon:'short', effortScore:3, impactScore:5, effort:'low', impact:'med',  roi:70, desc:'Build a resource plan for the annual budget and quarterly forecast peaks.', category:'team' },
       ],
       integrated: [
-        { name:'Build analytics specialist capability in FP&A', horizon:'med', effort:'med', impact:'high', roi:80, desc:'Develop or hire for data analytics and visualization skills within the team.', category:'team' },
-        { name:'Implement FP&A talent development roadmap', horizon:'long', effort:'med', impact:'high', roi:76, desc:'Define long-term career paths and development investments for the FP&A team.', category:'team' },
+        { name:'Build analytics specialist capability in FP&A',  horizon:'med',  effortScore:6, impactScore:8, effort:'med', impact:'high', roi:80, desc:'Develop or hire for data analytics and visualization skills within the team.', category:'team' },
+        { name:'Implement FP&A talent development roadmap',      horizon:'long', effortScore:5, impactScore:7, effort:'med', impact:'high', roi:76, desc:'Define long-term career paths and development investments for the FP&A team.', category:'team' },
       ],
       optimized: [
-        { name:'Build data science capability in FP&A', horizon:'long', effort:'high', impact:'high', roi:82, desc:'Develop or hire for Python, ML, and advanced analytics skills.', category:'team' },
-        { name:'Establish FP&A Center of Excellence', horizon:'long', effort:'med', impact:'high', roi:78, desc:'Create a centralized COE to drive best practices, tools, and capability building.', category:'team' },
+        { name:'Build data science capability in FP&A',  horizon:'long', effortScore:8, impactScore:9, effort:'high', impact:'high', roi:82, desc:'Develop or hire for Python, ML, and advanced analytics skills.', category:'team' },
+        { name:'Establish FP&A Center of Excellence',    horizon:'long', effortScore:6, impactScore:8, effort:'med',  impact:'high', roi:78, desc:'Create a centralized COE to drive best practices, tools, and capability building.', category:'team' },
       ],
       leading: [
-        { name:'Design AI-augmented FP&A operating model', horizon:'long', effort:'high', impact:'high', roi:75, desc:'Redesign FP&A roles and processes around an AI-first operating model.', category:'team' },
+        { name:'Design AI-augmented FP&A operating model', horizon:'long', effortScore:9, impactScore:9, effort:'high', impact:'high', roi:75, desc:'Redesign FP&A roles and processes around an AI-first operating model.', category:'team' },
       ]
     }
   };
@@ -1664,49 +1740,41 @@ function drawBFBChart(roadmap) {
   const cw = VW - pad.l - pad.r;
   const ch = VH - pad.t - pad.b;
 
-  const colorMap  = { short:'#3BAB7A', med:'#E8B24A', long:'#3A8BE8' };
-  // Effort bands: center + width of band bubbles can scatter within
-  const effortBand = { low: { cx: 0.14, w: 0.18 }, med: { cx: 0.50, w: 0.22 }, high: { cx: 0.84, w: 0.18 } };
+  const colorMap     = { short:'#3BAB7A', med:'#E8B24A', long:'#3A8BE8' };
   const horizonLabel = { short:'0–6 months', med:'6–18 months', long:'18+ months' };
   const impactLabel  = { high:'High', med:'Medium', low:'Low' };
   const effortLabel  = { low:'Low', med:'Medium', high:'High' };
 
-  // Simple deterministic hash for consistent jitter per action
-  function dhash(str) {
+  // ── Use numeric scores directly for placement ──
+  // effortScore 1–10 → x (left=low effort, right=high effort)
+  // impactScore 1–10 → y (top=high impact, bottom=low impact)
+  // Add a tiny per-bubble nudge so equal scores don't perfectly overlap
+  function nudge(val, name, axis) {
     let h = 0;
-    for (let i = 0; i < str.length; i++) h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
-    return (h >>> 0) / 0xffffffff; // 0..1
+    const s = name + axis;
+    for (let i = 0; i < s.length; i++) h = (Math.imul(31, h) + s.charCodeAt(i)) | 0;
+    return ((h >>> 0) / 0xffffffff - 0.5) * 0.4; // ±0.2 score units nudge
   }
 
-  // ROI range across the full roadmap — spread dynamically across full chart height
-  const rois = roadmap.map(a => a.roi);
-  const roiMin = Math.min(...rois) - 3;
-  const roiMax = Math.max(...rois) + 3;
-
-  // ── Build placed positions with jitter ──
   const placed = [];
   const nodes = roadmap.map((a, idx) => {
-    const band = effortBand[a.effort] || effortBand.med;
-    // Deterministic X scatter within the effort band (based on action name)
-    const jx = (dhash(a.name) - 0.5) * band.w;
-    const ex = Math.max(0.04, Math.min(0.96, band.cx + jx));
+    const es = Math.max(1, Math.min(10, (a.effortScore || 5) + nudge(a.effortScore || 5, a.name, 'x')));
+    const is = Math.max(1, Math.min(10, (a.impactScore || 5) + nudge(a.impactScore || 5, a.name, 'y')));
 
-    // Y: map roi across the full chart height (high roi = top = low y fraction)
-    const ey = 1 - ((a.roi - roiMin) / (roiMax - roiMin));
-
-    // Small Y jitter so equal-ROI items don't perfectly overlap
-    const jy = (dhash(a.name + 'y') - 0.5) * 0.06;
+    // Map 1–10 → 0.05–0.95 of chart area
+    const ex = 0.05 + ((es - 1) / 9) * 0.90;
+    const ey = 1 - (0.05 + ((is - 1) / 9) * 0.90); // invert: high impact = top
 
     let bx = pad.l + ex * cw;
-    let by = pad.t + Math.max(0.04, Math.min(0.96, ey + jy)) * ch;
-    const r = 8 + (a.roi - roiMin) / (roiMax - roiMin) * 6; // size 8–14
+    let by = pad.t + ey * ch;
+    const r = 7 + (a.roi - 60) / 10; // size based on ROI
 
     // Repulsion to reduce overlap
-    for (let iter = 0; iter < 12; iter++) {
+    for (let iter = 0; iter < 14; iter++) {
       placed.forEach(p => {
         const dx = bx - p.x, dy = by - p.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        const minD = r + p.r + 4;
+        const minD = r + p.r + 3;
         if (dist < minD && dist > 0) {
           const push = (minD - dist) / 2;
           bx += (dx / dist) * push;
@@ -1770,13 +1838,21 @@ function drawBFBChart(roadmap) {
   // Y axis title
   out += `<text x="14" y="${pad.t+ch/2}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.35)" transform="rotate(-90,14,${pad.t+ch/2})">← Return / Value →</text>`;
 
-  // X axis labels
-  ['Low Effort','Medium Effort','High Effort'].forEach((lbl,i) => {
-    const x = pad.l + [0.14, 0.50, 0.84][i] * cw;
-    out += `<text x="${x}" y="${pad.t+ch+20}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.35)">${lbl}</text>`;
-    out += `<line x1="${x}" y1="${pad.t+ch}" x2="${x}" y2="${pad.t+ch+6}" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>`;
+  // X axis tick labels (1, 3, 5, 7, 10)
+  [1,3,5,7,10].forEach(v => {
+    const x = pad.l + ((v-1)/9) * cw;
+    out += `<text x="${x}" y="${pad.t+ch+18}" text-anchor="middle" font-size="9" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.3)">${v}</text>`;
+    out += `<line x1="${x}" y1="${pad.t+ch}" x2="${x}" y2="${pad.t+ch+5}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
   });
-  out += `<text x="${pad.l+cw/2}" y="${pad.t+ch+38}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.25)">← Effort Required →</text>`;
+  out += `<text x="${pad.l+cw/2}" y="${pad.t+ch+36}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.25)">← Effort Required (1=Low · 10=High) →</text>`;
+
+  // Y axis tick labels
+  [1,3,5,7,10].forEach(v => {
+    const y = pad.t + ch - ((v-1)/9) * ch;
+    out += `<text x="${pad.l-6}" y="${y+3}" text-anchor="end" font-size="9" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.3)">${v}</text>`;
+    out += `<line x1="${pad.l-3}" y1="${y}" x2="${pad.l}" y2="${y}" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>`;
+  });
+  out += `<text x="13" y="${pad.t+ch/2}" text-anchor="middle" font-size="10" font-family="Outfit,sans-serif" fill="rgba(255,255,255,0.25)" transform="rotate(-90,13,${pad.t+ch/2})">← Impact (1=Low · 10=High) →</text>`;
 
   // Bubbles — draw shadow first, then fill
   nodes.forEach(n => {
@@ -1792,6 +1868,7 @@ function drawBFBChart(roadmap) {
       data-name="${(n.name||'').replace(/"/g,'&quot;')}"
       data-dim="${(n.dimension||'').replace(/"/g,'&quot;')}"
       data-impact="${n.impact}" data-effort="${n.effort}"
+      data-impact-score="${n.impactScore||''}" data-effort-score="${n.effortScore||''}"
       data-horizon="${n.horizon}" data-roi="${n.roi}"
       style="cursor:pointer;transition:r 0.15s,filter 0.15s;"
       onmouseenter="bfbHover(event,this)"
@@ -1821,8 +1898,8 @@ function bfbHover(e, el) {
 
   document.getElementById('tt-name').textContent   = el.dataset.name;
   document.getElementById('tt-dim').textContent    = el.dataset.dim;
-  document.getElementById('tt-impact').textContent = ({high:'High ●',med:'Medium ●',low:'Low ●'})[el.dataset.impact] || el.dataset.impact;
-  document.getElementById('tt-effort').textContent = ({low:'Low',med:'Medium',high:'High'})[el.dataset.effort] || el.dataset.effort;
+  document.getElementById('tt-impact').textContent = `${el.dataset.impactScore}/10 (${({high:'High',med:'Medium',low:'Low'})[el.dataset.impact] || el.dataset.impact})`;
+  document.getElementById('tt-effort').textContent = `${el.dataset.effortScore}/10 (${({low:'Low',med:'Medium',high:'High'})[el.dataset.effort] || el.dataset.effort})`;
   document.getElementById('tt-horizon').textContent= ({short:'0–6 months',med:'6–18 months',long:'18+ months'})[el.dataset.horizon] || el.dataset.horizon;
   document.getElementById('tt-roi').textContent    = el.dataset.roi + '%';
 
@@ -2302,6 +2379,450 @@ function downloadPDF() {
   w.document.write(printHtml);
   w.document.close();
 }
-</script>
-</body>
-</html>
+
+// ══════════════════════════════════════════════
+// SETTINGS ENGINE
+// ══════════════════════════════════════════════
+
+const SETTINGS_KEY_QUESTIONS = 'hgs_settings_questions';
+const SETTINGS_KEY_ACTIONS   = 'hgs_settings_actions';
+
+// ── Load settings from localStorage or fall back to defaults ──
+function loadSettingsQuestions() {
+  try {
+    const stored = localStorage.getItem(SETTINGS_KEY_QUESTIONS);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return null;
+}
+
+function loadSettingsActions() {
+  try {
+    const stored = localStorage.getItem(SETTINGS_KEY_ACTIONS);
+    if (stored) return JSON.parse(stored);
+  } catch(e) {}
+  return null;
+}
+
+// Build the default action scores map from the live library
+function buildDefaultActionScores() {
+  const scores = {};
+  // Pull every tier from every dimension
+  const allDims = ['tools','forecast','data','reporting','xpna','ai','process','team'];
+  const allTiers = ['reactive','emerging','integrated','optimized','leading'];
+  allDims.forEach(dim => {
+    allTiers.forEach(tier => {
+      const acts = dimensionActions(dim, tier);
+      acts.forEach(a => {
+        const key = a.name;
+        if (!scores[key]) {
+          scores[key] = { effortScore: a.effortScore, impactScore: a.impactScore, dimension: a.dimension, dimId: dim };
+        }
+      });
+    });
+  });
+  return scores;
+}
+
+// Build the default questions structure from SECTIONS
+function buildDefaultQuestions() {
+  return SECTIONS.map(sec => ({
+    id: sec.id,
+    name: sec.name,
+    icon: sec.icon,
+    questions: sec.questions.map(q => ({
+      text: q.text,
+      options: q.options.map((opt, i) => ({ text: opt, score: i + 1 }))
+    }))
+  }));
+}
+
+// ── Apply stored questions override to SECTIONS at startup ──
+function applyStoredQuestions() {
+  const stored = loadSettingsQuestions();
+  if (!stored) return;
+  stored.forEach((secData, si) => {
+    if (!SECTIONS[si]) return;
+    secData.questions.forEach((qData, qi) => {
+      if (!SECTIONS[si].questions[qi]) return;
+      SECTIONS[si].questions[qi].text = qData.text;
+      SECTIONS[si].questions[qi].options = qData.options.map(o => o.text);
+      SECTIONS[si].questions[qi]._scores = qData.options.map(o => o.score);
+    });
+  });
+}
+
+// ── Get score for a given question/option (respects settings overrides) ──
+function getOptionScore(sectionIdx, questionIdx, optionIdx) {
+  const q = SECTIONS[sectionIdx]?.questions[questionIdx];
+  if (q && q._scores) return q._scores[optionIdx] ?? (optionIdx + 1);
+  return optionIdx + 1; // default: 1-indexed
+}
+
+// Apply stored action scores to the dimensionActions library
+// We do this by patching at runtime when buildRoadmap is called
+function getActionScoreOverrides() {
+  return loadSettingsActions() || buildDefaultActionScores();
+}
+
+// ── Open settings ──
+function openSettings() {
+  renderSettingsQuestions();
+  renderSettingsActions();
+  showScreen('screen-settings');
+}
+
+function switchSettingsTab(tab) {
+  document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('stab-' + tab).classList.add('active');
+  document.getElementById('spanel-' + tab).classList.add('active');
+}
+
+// ── Render Questions editor ──
+function renderSettingsQuestions() {
+  const stored = loadSettingsQuestions() || buildDefaultQuestions();
+  const body = document.getElementById('settings-questions-body');
+
+  body.innerHTML = stored.map((sec, si) => `
+    <div class="settings-section-header" onclick="toggleSettingsSection('sq-${si}')">
+      <span class="settings-section-icon">${sec.icon}</span>
+      <span class="settings-section-title">${sec.name}</span>
+      <span class="settings-section-chevron" id="sqchev-${si}">▼</span>
+    </div>
+    <div class="settings-section-body" id="sq-${si}">
+      ${sec.questions.map((q, qi) => `
+        <div class="settings-question-block">
+          <div class="settings-q-label">Question ${qi + 1}</div>
+          <textarea class="settings-input" rows="2"
+            onchange="saveQuestionText(${si},${qi},this.value)"
+            style="margin-bottom:12px;resize:vertical;">${escHtml(q.text)}</textarea>
+          <div style="display:grid;grid-template-columns:1fr 72px;gap:6px 8px;margin-bottom:4px;">
+            <div style="font-size:10px;color:var(--silver);padding-left:2px;">Answer Option</div>
+            <div style="font-size:10px;color:var(--silver);text-align:center;">Score</div>
+          </div>
+          ${q.options.map((opt, oi) => `
+            <div class="settings-option-row">
+              <input type="text" class="settings-input" value="${escHtml(opt.text)}"
+                onchange="saveOptionText(${si},${qi},${oi},this.value)" />
+              <div>
+                <input type="number" class="settings-score-input" min="1" max="10"
+                  value="${opt.score}" onchange="saveOptionScore(${si},${qi},${oi},+this.value)" />
+                <div class="settings-option-label">1–10</div>
+              </div>
+            </div>`).join('')}
+        </div>`).join('')}
+    </div>`).join('');
+}
+
+function toggleSettingsSection(id) {
+  const body  = document.getElementById(id);
+  const chev  = document.getElementById(id.replace('sq-','sqchev-').replace('sa-','sachev-'));
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  if (chev) chev.classList.toggle('open', !isOpen);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getOrInitStoredQuestions() {
+  return loadSettingsQuestions() || buildDefaultQuestions();
+}
+
+function saveQuestionText(si, qi, val) {
+  const data = getOrInitStoredQuestions();
+  data[si].questions[qi].text = val;
+  localStorage.setItem(SETTINGS_KEY_QUESTIONS, JSON.stringify(data));
+  applyStoredQuestions();
+  showSaveBadge();
+}
+
+function saveOptionText(si, qi, oi, val) {
+  const data = getOrInitStoredQuestions();
+  data[si].questions[qi].options[oi].text = val;
+  localStorage.setItem(SETTINGS_KEY_QUESTIONS, JSON.stringify(data));
+  applyStoredQuestions();
+  showSaveBadge();
+}
+
+function saveOptionScore(si, qi, oi, val) {
+  const data = getOrInitStoredQuestions();
+  data[si].questions[qi].options[oi].score = Math.max(1, Math.min(10, val));
+  localStorage.setItem(SETTINGS_KEY_QUESTIONS, JSON.stringify(data));
+  applyStoredQuestions();
+  showSaveBadge();
+}
+
+// ── Render Action Scores editor ──
+function renderSettingsActions() {
+  const overrides = getActionScoreOverrides();
+  const allDims   = ['tools','forecast','data','reporting','xpna','ai','process','team'];
+  const allTiers  = ['reactive','emerging','integrated','optimized','leading'];
+  const body = document.getElementById('settings-actions-body');
+
+  // Group by dimension
+  const byDim = {};
+  allDims.forEach(dim => {
+    byDim[dim] = { name:'', icon:'', actions:[] };
+    allTiers.forEach(tier => {
+      dimensionActions(dim, tier).forEach(a => {
+        if (!byDim[dim].actions.find(x => x.name === a.name)) {
+          byDim[dim].actions.push({ ...a, dimension: a.dimension, icon: a.dimIcon });
+          byDim[dim].name = a.dimension;
+        }
+      });
+    });
+  });
+
+  const dimIcons = { tools:'🖥️', forecast:'📈', data:'🗄️', reporting:'📊', xpna:'🤝', ai:'🤖', process:'⚙️', team:'👥' };
+
+  body.innerHTML = allDims.map(dim => {
+    const d = byDim[dim];
+    if (!d.actions.length) return '';
+    return `
+    <div class="settings-section-header" onclick="toggleSettingsSection('sa-${dim}')">
+      <span class="settings-section-icon">${dimIcons[dim]}</span>
+      <span class="settings-section-title">${d.name} <span style="color:var(--silver);font-weight:400;font-size:12px;">(${d.actions.length} actions)</span></span>
+      <span class="settings-section-chevron" id="sachev-${dim}">▼</span>
+    </div>
+    <div class="settings-section-body" id="sa-${dim}">
+      <div style="display:grid;grid-template-columns:1fr 90px 90px;gap:0 12px;padding:8px 14px;border-bottom:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;">ACTION</div>
+        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">EFFORT (1–10)</div>
+        <div style="font-size:10px;color:var(--silver);font-weight:600;letter-spacing:.08em;text-align:center;">IMPACT (1–10)</div>
+      </div>
+      ${d.actions.map(a => {
+        const ov = overrides[a.name] || {};
+        const es = ov.effortScore ?? a.effortScore ?? 5;
+        const is = ov.impactScore ?? a.impactScore ?? 5;
+        return `<div class="action-score-row">
+          <div>
+            <div class="action-score-name">${escHtml(a.name)}</div>
+            <div class="action-score-dim">${a.horizon === 'short' ? '⚡ Short' : a.horizon === 'med' ? '🔧 Mid' : '🚀 Long'} term</div>
+          </div>
+          <div class="score-input-wrap">
+            <input type="number" min="1" max="10" value="${es}"
+              onchange="saveActionScore('${escHtml(a.name).replace(/'/g,'\\\'')}',' effortScore',+this.value)"
+              title="Effort Score for ${escHtml(a.name)}" />
+            <div class="score-input-label">Effort</div>
+          </div>
+          <div class="score-input-wrap">
+            <input type="number" min="1" max="10" value="${is}"
+              onchange="saveActionScore('${escHtml(a.name).replace(/'/g,'\\\'')}',' impactScore',+this.value)"
+              title="Impact Score for ${escHtml(a.name)}" />
+            <div class="score-input-label">Impact</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
+
+function saveActionScore(name, field, val) {
+  const overrides = getActionScoreOverrides();
+  const cleanName = name.trim();
+  const cleanField = field.trim();
+  if (!overrides[cleanName]) overrides[cleanName] = {};
+  overrides[cleanName][cleanField] = Math.max(1, Math.min(10, val));
+  localStorage.setItem(SETTINGS_KEY_ACTIONS, JSON.stringify(overrides));
+  showSaveBadge();
+}
+
+// ── Save badge flash ──
+let _badgeTimer = null;
+function showSaveBadge() {
+  // Show a small toast at bottom of screen
+  let badge = document.getElementById('settings-save-toast');
+  if (!badge) {
+    badge = document.createElement('div');
+    badge.id = 'settings-save-toast';
+    badge.textContent = '✓ Saved';
+    badge.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0E7C7B;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;font-family:Outfit,sans-serif;z-index:999;transition:opacity 0.3s;opacity:0;pointer-events:none;';
+    document.body.appendChild(badge);
+  }
+  badge.style.opacity = '1';
+  clearTimeout(_badgeTimer);
+  _badgeTimer = setTimeout(() => badge.style.opacity = '0', 1800);
+}
+
+// ── Reset ──
+function resetAllSettings() {
+  if (!confirm('Reset all settings to defaults? This cannot be undone.')) return;
+  localStorage.removeItem(SETTINGS_KEY_QUESTIONS);
+  localStorage.removeItem(SETTINGS_KEY_ACTIONS);
+  // Restore SECTIONS to original
+  applyStoredQuestions(); // will apply nothing since cleared
+  // Re-render settings panels
+  renderSettingsQuestions();
+  renderSettingsActions();
+  showSaveBadge();
+  alert('Settings reset to defaults.');
+}
+
+// ── Export / Import ──
+function exportSettings() {
+  const data = {
+    questions: loadSettingsQuestions() || buildDefaultQuestions(),
+    actions:   loadSettingsActions()   || buildDefaultActionScores(),
+    exported:  new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'hgs_assessment_settings.json';
+  a.click();
+}
+
+function importSettings(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.questions) localStorage.setItem(SETTINGS_KEY_QUESTIONS, JSON.stringify(data.questions));
+      if (data.actions)   localStorage.setItem(SETTINGS_KEY_ACTIONS,   JSON.stringify(data.actions));
+      applyStoredQuestions();
+      renderSettingsQuestions();
+      renderSettingsActions();
+      showSaveBadge();
+      alert('Settings imported successfully.');
+    } catch(err) {
+      alert('Import failed — invalid JSON file.');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ── Patch buildRoadmap to apply action score overrides ──
+const _origDimensionActions = dimensionActions;
+function dimensionActionsWithOverrides(dimId, tier) {
+  const overrides = getActionScoreOverrides();
+  return _origDimensionActions(dimId, tier).map(a => {
+    const ov = overrides[a.name];
+    if (ov) return { ...a, effortScore: ov.effortScore ?? a.effortScore, impactScore: ov.impactScore ?? a.impactScore };
+    return a;
+  });
+}
+
+// ── Patch selectAnswer to use custom scores ──
+const _origSelectAnswer = selectAnswer;
+function selectAnswer(sectionIdx, questionIdx, optionIdx) {
+  if (!answers[sectionIdx]) answers[sectionIdx] = {};
+  answers[sectionIdx][questionIdx] = optionIdx;
+  const card = document.getElementById(`qcard-${questionIdx}`);
+  if (card) {
+    card.classList.add('answered');
+    card.querySelectorAll('.q-option').forEach((el, idx) => {
+      el.classList.toggle('selected', idx === optionIdx);
+    });
+  }
+  const answered = Object.keys(answers[sectionIdx]).length;
+  document.getElementById('section-progress-text').textContent = `${answered} / ${SECTIONS[sectionIdx].questions.length} answered`;
+  updateNextButton();
+  updateProgress();
+  renderSectionTabs();
+}
+
+// Override buildResults scoring to use custom option scores
+const _origBuildResults = buildResults;
+function buildResults() {
+  const name    = document.getElementById('f-name').value.trim();
+  const role    = document.getElementById('f-role').value.trim();
+  const org     = document.getElementById('f-org').value.trim();
+  const advisor = document.getElementById('f-advisor').value.trim();
+  const industry = document.getElementById('f-industry').value || 'Not specified';
+  const size    = document.getElementById('f-size').value || 'Not specified';
+  const date    = document.getElementById('f-date').value;
+
+  const dimScores = SECTIONS.map((sec, si) => {
+    const secAnswers = answers[si] || {};
+    const raw = Object.entries(secAnswers).reduce((s, [qi, oi]) => {
+      return s + getOptionScore(si, +qi, oi);
+    }, 0);
+    const maxRaw = sec.questions.length * 5;
+    const pct = raw / maxRaw;
+    const tier = scoreTier(pct);
+    return { ...sec, raw, maxRaw, pct, tier };
+  });
+
+  const totalRaw   = dimScores.reduce((s,d) => s+d.raw, 0);
+  const totalMax   = dimScores.reduce((s,d) => s+d.maxRaw, 0);
+  const overallPct = totalRaw / totalMax;
+  const overallTier = scoreTier(overallPct);
+  const overallScore = Math.round(overallPct * 100);
+
+  // Use overridden action scores in roadmap
+  const roadmap = buildRoadmapWithOverrides(dimScores);
+
+  submitToSheets({
+    timestamp: new Date().toISOString(), name, role, org, industry, size, advisor, date,
+    overall_score: overallScore, overall_tier: overallTier.label,
+    ...Object.fromEntries(dimScores.flatMap(d => [
+      [`dim_${d.id}_score`, d.raw], [`dim_${d.id}_tier`, d.tier.label],
+    ])),
+    ...Object.fromEntries(
+      SECTIONS.flatMap((sec, si) =>
+        sec.questions.map((q, qi) => {
+          const ans = answers[si]?.[qi];
+          return [`q${si+1}_${qi+1}`, ans !== undefined ? getOptionScore(si, qi, ans) : ''];
+        })
+      )
+    )
+  });
+
+  document.getElementById('screen-results').innerHTML = `
+    ${renderResultsHero(name, role, org, date, overallScore, overallTier, industry, size, advisor)}
+    ${renderDimensionScores(dimScores)}
+    ${renderRadar(dimScores)}
+    ${renderBFBChart(roadmap)}
+    ${renderQuadrantCards(roadmap)}
+    ${renderRoadmap(roadmap)}
+    ${renderFindings(dimScores)}
+    ${renderResultsCTA()}
+  `;
+  showScreen('screen-results');
+  setTimeout(() => { drawRadar(dimScores); drawBFBChart(roadmap); animateBars(dimScores); }, 100);
+}
+
+function buildRoadmapWithOverrides(dimScores) {
+  const overrides = getActionScoreOverrides();
+  const actions = [];
+  dimScores.forEach(d => {
+    const acts = dimensionActionsWithOverrides(d.id, d.tier.key);
+    acts.forEach(a => actions.push({ ...a, dimension: d.name, dimIcon: d.icon }));
+  });
+  return actions;
+}
+
+// ── Secret keystroke combo to reveal settings ──
+// Type 'hgsadmin' anywhere on the page (not in an input field) to unlock
+(function() {
+  const SECRET = 'hgsadmin';
+  let buffer = '';
+  let timer = null;
+  document.addEventListener('keydown', function(e) {
+    // Ignore if typing in an input/textarea
+    const tag = document.activeElement?.tagName?.toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+
+    buffer += e.key.toLowerCase();
+    if (buffer.length > SECRET.length) buffer = buffer.slice(-SECRET.length);
+
+    clearTimeout(timer);
+    timer = setTimeout(() => buffer = '', 2000); // reset if paused >2s
+
+    if (buffer === SECRET) {
+      buffer = '';
+      const btn = document.getElementById('settings-btn');
+      if (btn) {
+        btn.style.display = 'flex';
+        btn.innerHTML = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg> Settings`;
+      }
+    }
+  });
+})();
+
+
