@@ -1139,20 +1139,21 @@ function prevSection() {
 // GOOGLE SHEETS INTEGRATION
 // ── STEP 1: Paste your Apps Script Web App URL below ──
 // ══════════════════════════════════════════════
-const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbw8InIDqykjKXhI6B8IS45dkwxZwOqTl3Sybro8GQ-LSE4Zyu30k6-8O7nXoROj5bUl/exec';
+const SHEETS_WEBHOOK_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
 
 async function submitToSheets(payload) {
   if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
   try {
+    // Build the same HTML the download button uses and attach it to the payload
+    const reportHtml = buildReportHTML();
     await fetch(SHEETS_WEBHOOK_URL, {
       method: 'POST',
-      mode: 'no-cors', // Required for Apps Script — no response body but it works
+      mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({ ...payload, report_html: reportHtml })
     });
   } catch (e) {
     console.warn('Sheet submission failed silently:', e);
-    // Never block the user — fail silently
   }
 }
 
@@ -2059,7 +2060,9 @@ function retake() {
 // ══════════════════════════════════════════════
 // PDF EXPORT
 // ══════════════════════════════════════════════
-function downloadPDF() {
+// ── Shared report HTML builder ─────────────────────────
+// Used by both the Download PDF button AND the Google Drive upload
+function buildReportHTML() {
   const name     = document.getElementById('f-name').value.trim();
   const role     = document.getElementById('f-role').value.trim();
   const org      = document.getElementById('f-org').value.trim();
@@ -2076,9 +2079,9 @@ function downloadPDF() {
     const pct = raw / maxRaw;
     return { ...sec, raw, maxRaw, pct, tier: scoreTier(pct) };
   });
-  const totalRaw   = dimScores.reduce((s,d) => s+d.raw, 0);
-  const totalMax   = dimScores.reduce((s,d) => s+d.maxRaw, 0);
-  const overallPct = totalRaw / totalMax;
+  const totalRaw    = dimScores.reduce((s,d) => s+d.raw, 0);
+  const totalMax    = dimScores.reduce((s,d) => s+d.maxRaw, 0);
+  const overallPct  = totalRaw / totalMax;
   const overallTier = scoreTier(overallPct);
   const overallScore = Math.round(overallPct * 100);
   const roadmapAll  = buildRoadmap(dimScores);
@@ -2089,12 +2092,10 @@ function downloadPDF() {
   };
   const tc = tierHex[overallTier.key];
 
-  // ── Build print HTML ──
   function scoreBar(pct, color) {
     return `<div style="height:6px;background:#1e3448;border-radius:4px;overflow:hidden;margin-top:4px;">
       <div style="height:100%;width:${Math.round(pct*100)}%;background:${color};border-radius:4px;"></div></div>`;
   }
-
   function impactBadge(v) {
     const map = {high:['#3BAB7A','#0d2a1e'],med:['#E8943A','#2a1a0a'],low:['#6B8099','#1a2535']};
     const [fg,bg] = map[v]||map.low;
@@ -2105,14 +2106,12 @@ function downloadPDF() {
     const [fg,bg] = map[v]||map.low;
     return `<span style="background:${bg};color:${fg};border:1px solid ${fg};padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.05em">${v.toUpperCase()}</span>`;
   }
-
   function sectionHeader(title, subtitle='') {
     return `<div style="margin:36px 0 18px;border-bottom:1px solid #1e3448;padding-bottom:10px;">
       <h2 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 4px;">${title}</h2>
       ${subtitle?`<p style="font-size:12px;color:#6B8099;margin:0;">${subtitle}</p>`:''}
     </div>`;
   }
-
   function roadmapTable(actions, accentColor) {
     if (!actions.length) return '<p style="color:#6B8099;font-size:12px;">No actions in this horizon.</p>';
     return `<table style="width:100%;border-collapse:collapse;font-size:12px;">
@@ -2142,7 +2141,7 @@ function downloadPDF() {
   const medActions   = roadmapAll.filter(a => a.horizon === 'med');
   const longActions  = roadmapAll.filter(a => a.horizon === 'long');
 
-  const html = `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
@@ -2267,13 +2266,18 @@ function downloadPDF() {
   </div>
 
 </div>
-<script>window.onload = function(){ window.print(); }<\/script>
 </body>
 </html>`;
+}
 
+// ── Download button — opens print window ───────────────
+function downloadPDF() {
+  const html = buildReportHTML();
+  // Inject the print trigger only for the browser window version
+  const printHtml = html.replace('</body>', '<script>window.onload=function(){window.print();}<\/script></body>');
   const w = window.open('', '_blank');
   if (!w) { alert('Please allow pop-ups for this page to download the PDF report.'); return; }
-  w.document.write(html);
+  w.document.write(printHtml);
   w.document.close();
 }
 </script>
