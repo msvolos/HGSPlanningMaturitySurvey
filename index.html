@@ -1136,8 +1136,27 @@ function prevSection() {
 }
 
 // ══════════════════════════════════════════════
-// RESULTS ENGINE
+// GOOGLE SHEETS INTEGRATION
+// ── STEP 1: Paste your Apps Script Web App URL below ──
 // ══════════════════════════════════════════════
+const SHEETS_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbw8InIDqykjKXhI6B8IS45dkwxZwOqTl3Sybro8GQ-LSE4Zyu30k6-8O7nXoROj5bUl/exec';
+
+async function submitToSheets(payload) {
+  if (!SHEETS_WEBHOOK_URL || SHEETS_WEBHOOK_URL === 'YOUR_APPS_SCRIPT_URL_HERE') return;
+  try {
+    await fetch(SHEETS_WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors', // Required for Apps Script — no response body but it works
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    console.warn('Sheet submission failed silently:', e);
+    // Never block the user — fail silently
+  }
+}
+
+
 function buildResults() {
   const name = document.getElementById('f-name').value.trim();
   const role = document.getElementById('f-role').value.trim();
@@ -1165,6 +1184,34 @@ function buildResults() {
 
   // Build roadmap actions
   const roadmap = buildRoadmap(dimScores);
+
+  // ── Submit to Google Sheets ──
+  submitToSheets({
+    timestamp:    new Date().toISOString(),
+    name,
+    role,
+    org,
+    industry,
+    size,
+    advisor,
+    date,
+    overall_score:  overallScore,
+    overall_tier:   overallTier.label,
+    // One column per dimension: score and tier
+    ...Object.fromEntries(dimScores.flatMap(d => [
+      [`dim_${d.id}_score`, d.raw],
+      [`dim_${d.id}_tier`,  d.tier.label],
+    ])),
+    // Individual question answers (1–5 scale)
+    ...Object.fromEntries(
+      SECTIONS.flatMap((sec, si) =>
+        sec.questions.map((q, qi) => {
+          const ans = answers[si]?.[qi];
+          return [`q${si+1}_${qi+1}`, ans !== undefined ? ans + 1 : ''];
+        })
+      )
+    )
+  });
 
   // Render
   document.getElementById('screen-results').innerHTML = `
@@ -1986,7 +2033,7 @@ function renderResultsCTA() {
     <h3>Ready to Accelerate Your Transformation?</h3>
     <p>HGS Advisory specializes in FP&A transformation — from quick-win implementations to full enterprise platform deployments. Let's build your roadmap together.</p>
     <div class="cta-btns">
-      <button class="btn-primary" onclick="https://hgs.com/technology/data-analytics/extended-planning-analysis/">
+      <button class="btn-primary" onclick="alert('Connect with HGS Advisory — feature coming soon.')">
         Schedule a Strategy Session
         <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </button>
