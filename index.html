@@ -2700,7 +2700,7 @@ function importSettings(event) {
 // ── Patch buildRoadmap to apply action score overrides ──
 function dimensionActionsWithOverrides(dimId, tier) {
   const overrides = getActionScoreOverrides();
-  return _origDimensionActions(dimId, tier).map(a => {
+  return dimensionActions(dimId, tier).map(a => {
     const ov = overrides[a.name];
     if (ov) return { ...a, effortScore: ov.effortScore ?? a.effortScore, impactScore: ov.impactScore ?? a.impactScore };
     return a;
